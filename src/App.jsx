@@ -5,26 +5,29 @@ import './App.css'
 import EnemyShip from './components/EnemyShip'
 import PlayerProjectile from './components/PlayerProjectile'
 import PlayerShip from './components/PlayerShip'
+import HomeDisplay from './components/HomeDisplay'
 import {
   calcPlayerMovement,
   checkColision,
+  checkGameOver,
   checkWaveCleared,
   enemyMoveDown,
   nextImg,
   oneSecondTimer,
+  pauseGame,
   projectileMoveUp,
   summonEnemys,
   summonProjectile,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
+import GameOverDisplay from './components/GameOverDisplay'
 
 let moveup = false
 let movedown = false
 let moveleft = false
 let moveright = false
 let playerFire = false
-let pause = false
 
 function App() {
   const dispatch = useDispatch()
@@ -35,8 +38,9 @@ function App() {
     explosions,
     wave,
     waveCleared,
+    gameSean,
+    damaged,
   } = useSelector((state) => state.game)
-  const [gamePaused, setGamePaused] = useState(pause)
   const [keys, setkeys] = useState({
     w: false,
     s: false,
@@ -46,40 +50,39 @@ function App() {
   })
   useEffect(() => {
     const update = setInterval(() => {
-      if (!pause) {
-        if (moveup) {
-          dispatch(calcPlayerMovement({ exis: 'vertical', direction: +1 }))
-        }
-        if (movedown) {
-          dispatch(calcPlayerMovement({ exis: 'vertical', direction: -1 }))
-        }
-        if (moveleft) {
-          dispatch(calcPlayerMovement({ exis: 'horizontal', direction: -1 }))
-        }
-        if (moveright) {
-          dispatch(calcPlayerMovement({ exis: 'horizontal', direction: +1 }))
-        }
-        if (playerFire) {
-          dispatch(summonProjectile())
-        }
-        dispatch(projectileMoveUp())
-        {
-          const tempkeys = {
-            w: moveup,
-            s: movedown,
-            a: moveleft,
-            d: moveright,
-            space: playerFire,
-          }
-          setkeys(tempkeys)
-        }
-        dispatch(summonEnemys())
-        dispatch(enemyMoveDown())
-        dispatch(checkColision())
-        dispatch(nextImg())
-        dispatch(checkWaveCleared())
-        dispatch(oneSecondTimer())
+      if (moveup) {
+        dispatch(calcPlayerMovement({ exis: 'vertical', direction: +1 }))
       }
+      if (movedown) {
+        dispatch(calcPlayerMovement({ exis: 'vertical', direction: -1 }))
+      }
+      if (moveleft) {
+        dispatch(calcPlayerMovement({ exis: 'horizontal', direction: -1 }))
+      }
+      if (moveright) {
+        dispatch(calcPlayerMovement({ exis: 'horizontal', direction: +1 }))
+      }
+      if (playerFire) {
+        dispatch(summonProjectile())
+      }
+      dispatch(projectileMoveUp())
+      {
+        const tempkeys = {
+          w: moveup,
+          s: movedown,
+          a: moveleft,
+          d: moveright,
+          space: playerFire,
+        }
+        setkeys(tempkeys)
+      }
+      dispatch(summonEnemys())
+      dispatch(enemyMoveDown())
+      dispatch(checkColision())
+      dispatch(nextImg())
+      dispatch(checkWaveCleared())
+      dispatch(oneSecondTimer())
+      dispatch(checkGameOver())
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps
@@ -129,8 +132,7 @@ function App() {
       tempkeys.space = false
     }
     if (e.keyCode === 80) {
-      pause = !pause
-      setGamePaused(pause)
+      dispatch(pauseGame())
     }
   }
   useEffect(() => {
@@ -145,6 +147,7 @@ function App() {
   return (
     <div className="App">
       <img className="wallpaper" src="wallpaper.jpg" />
+
       <div className="info">
         <p>Control Ship</p>
         <div className="row">
@@ -173,9 +176,20 @@ function App() {
           </span>
         </div>
       </div>
+
       <div className="game">
-        <div className="UI score">Score: {player.score}</div>
-        <div className="UI wave">Wave: {wave.number}</div>
+        {gameSean !== 'home' && (
+          <>
+            <div className="UI score">Score: {player.score}</div>
+            <div className="UI wave">Wave: {wave.number}</div>
+            <div className="UI health">
+              <div
+                className="fill"
+                style={{ width: player.health + '%' }}
+              ></div>
+            </div>
+          </>
+        )}
         {waveCleared.cleared && (
           <WaveCleardInfo
             wave={wave.number}
@@ -184,8 +198,8 @@ function App() {
             time={waveCleared.timer}
           />
         )}
-        <PauseDisplay pause={gamePaused}>pause</PauseDisplay>
-        <PlayerShip x={player.x} y={player.y} />
+
+        {gameSean !== 'home' && <PlayerShip x={player.x} y={player.y} />}
         {projectiles.map((projectile) => {
           return (
             <PlayerProjectile
@@ -217,6 +231,19 @@ function App() {
             />
           )
         })}
+
+        {gameSean === 'gameover' && (
+          <GameOverDisplay
+            score={player.score}
+            shipsDestroyed={player.shipsDestroyed}
+          />
+        )}
+        {gameSean === 'home' && <HomeDisplay />}
+        {gameSean === 'pause' && <PauseDisplay>pause</PauseDisplay>}
+        <div
+          className="model damaged active"
+          style={{ opacity: damaged + '%' }}
+        ></div>
       </div>
     </div>
   )

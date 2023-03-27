@@ -1,11 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const PauseDisplay = styled.div.attrs((props) => ({
-  style: {
-    display: props.pause ? 'flex' : 'none',
-  },
-}))`
+export const PauseDisplay = styled.div`
   position: absolute;
   top: 0;
   left: 0;

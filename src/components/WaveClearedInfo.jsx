@@ -1,7 +1,7 @@
 function WaveCleardInfo(props) {
   return (
-    <div className="wave-cleared-info-model">
-      <div className="wave-cleared-info-content">
+    <div className="model">
+      <div className="model-info">
         <h1 className="h">
           Wave <span>{props.wave}</span> Cleared
         </h1>
