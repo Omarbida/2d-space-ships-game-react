@@ -16,7 +16,7 @@ const initialState = {
     x: 475,
     y: 175,
     score: 0,
-    health: 100,
+    health: 10,
     shipsDestroyed: 0,
   },
   damaged: false,
@@ -38,6 +38,7 @@ const initialState = {
     score: 0,
     timer: 5,
   },
+  healthBar: [],
 }
 const gameSlice = createSlice({
   name: 'game',
@@ -96,12 +97,14 @@ const gameSlice = createSlice({
       if (state.gameSean !== 'game') return
       if (
         performance.now() - lastSpawn > enemySpawnRate &&
-        state.enemySummoned < state.wave.enemys
+        state.enemySummoned < state.wave.enemys &&
+        state.enemys.length < 7
       ) {
         state.enemys.push({
           x: Math.floor(Math.random() * 950),
           y: 650,
           id: state.enemIds,
+          ship: Math.floor(Math.random() * 4) + 1,
         })
         state.enemIds++
         state.enemySummoned++
@@ -126,6 +129,12 @@ const gameSlice = createSlice({
       if (state.player.health <= 0) {
         state.gameRuning = false
         state.gameSean = 'gameover'
+      } else {
+        let tempHealthBar = []
+        for (let i = 0; i < state.player.health; i++) {
+          tempHealthBar.push(i)
+        }
+        state.healthBar = [...tempHealthBar]
       }
     },
     startGame: (state) => {
@@ -193,7 +202,7 @@ const gameSlice = createSlice({
               (enem.y + 60 >= state.player.y &&
                 enem.y + 60 <= state.player.y + 60))
           ) {
-            state.player.health -= 10
+            state.player.health -= 1
             state.damaged = 100
             state.enemys = state.enemys.filter((enemy) => {
               if (enemy.id != enem.id) return enemy

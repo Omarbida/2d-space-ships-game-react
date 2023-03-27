@@ -148,34 +148,33 @@
   z-index: 99;
 }
 .game .UI.health {
-  top: 18px;
+  top: 20px;
   left: 20px;
-  width: 300px;
-  height: 30px;
-  background: rgba(0, 255, 255, 0.356);
+  width: 327px;
+  height: 40px;
+  display: flex;
+  background: rgba(0, 255, 255, 0.3);
   box-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
-  border-radius: 5px;
   overflow: hidden;
+  gap: 4px;
+  transform: skewX(-8deg);
 }
-.game .UI.health div.fill {
+
+.game .UI.health .health-rectangle {
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 255, 255, 0.2),
-    rgba(0, 255, 255, 0.2),
-    rgba(0, 255, 255, 0.2),
-    aqua
-  );
-  color: rgb(0, 0, 0);
+  width: 29px;
+  background: aqua;
 }
+
 .game .UI.wave {
-  top: 50px;
-  left: 20px;
-}
-.game .UI.score {
   top: 80px;
   left: 20px;
 }
+.game .UI.score {
+  top: 110px;
+  left: 20px;
+}
+
 img.ship-img {
   height: 100%;
   width: 100%;
@@ -184,9 +183,9 @@ img.ship-thruster-img {
   position: absolute;
   height: 40px;
   width: 21px;
-  top: 87%;
+  top: 60px;
   left: 10px;
-  animation: thrusterAnim 100ms infinite ease-in-out;
+  animation: thrusterAnim 150ms infinite ease-in-out;
 }
 .projectile-img {
   height: 20px;
@@ -195,45 +194,67 @@ img.ship-thruster-img {
   left: 0px;
 }
 img.enemy-ship-img {
+  position: absolute;
   height: 100%;
   width: 100%;
+  scale: 120%;
+  z-index: 99;
 }
 img.ship-thruster-img.enemy {
-  height: 45px;
+  position: absolute;
+  height: 70px;
   width: 40px;
   rotate: 180deg;
-  top: -40px;
-  left: 0px;
-  animation: thrusterAnim 100ms infinite linear;
+  top: -10px;
+  left: 0;
+  animation: thrusterAnim 150ms infinite linear;
+  z-index: 97;
 }
 
 @keyframes thrusterAnim {
   0% {
-    scale: 97%;
-    opacity: 0.6;
-  }
-  10% {
-    scale: 98%;
+    scale: 145%;
     opacity: 0.7;
   }
-  20% {
-    scale: 99%;
-    opacity: 0.8;
-  }
-  40% {
-    scale: 100%;
-    opacity: 0.9;
-  }
-  60% {
-    scale: 102%;
+  10% {
+    scale: 150%;
     opacity: 1;
   }
+  20% {
+    scale: 155%;
+    opacity: 0.7;
+  }
+  30% {
+    scale: 150%;
+    opacity: 1;
+  }
+  40% {
+    scale: 145%;
+    opacity: 0.7;
+  }
+  50% {
+    scale: 150%;
+    opacity: 1;
+  }
+  60% {
+    scale: 155%;
+    opacity: 0.7;
+  }
+  70% {
+    scale: 150%;
+    opacity: 1;
+  }
+
   80% {
-    scale: 100%;
-    opacity: 0.9;
+    scale: 145%;
+    opacity: 0.7;
+  }
+  90% {
+    scale: 150%;
+    opacity: 1;
   }
   100% {
-    scale: 98%;
-    opacity: 0.8;
+    scale: 155%;
+    opacity: 0.7;
   }
 }

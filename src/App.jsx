@@ -40,6 +40,7 @@ function App() {
     waveCleared,
     gameSean,
     damaged,
+    healthBar,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -183,10 +184,9 @@ function App() {
             <div className="UI score">Score: {player.score}</div>
             <div className="UI wave">Wave: {wave.number}</div>
             <div className="UI health">
-              <div
-                className="fill"
-                style={{ width: player.health + '%' }}
-              ></div>
+              {healthBar.map((bar) => {
+                return <div key={bar} className="health-rectangle"></div>
+              })}
             </div>
           </>
         )}
@@ -217,6 +217,7 @@ function App() {
               index={enemy.id}
               x={enemy.x}
               y={enemy.y}
+              ship={enemy.ship}
             />
           )
         })}
