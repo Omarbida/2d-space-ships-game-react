@@ -6,10 +6,10 @@ export const Ship = styled.div.attrs((props) => ({
     left: props.x + 'px',
   },
 }))`
-  height: 70px;
-  width: 50px;
+  height: 60px;
+  width: 40px;
   position: absolute;
-  z-index: 99;
+  z-index: 98;
   border-radius: 50%;
 `
 

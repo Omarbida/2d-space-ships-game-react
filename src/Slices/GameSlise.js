@@ -1,9 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const shipSpeed = 2
+const playerShipSpeed = 2
+const enemyShipSpeed = -2
 const projectileSpeed = 5
 const fireRate = 200
 let lastFire = 0
+const enemySpawnRate = 1000
+let lastSpawn = 0
 const initialState = {
   player: {
     x: 475,
@@ -12,7 +15,9 @@ const initialState = {
   },
   projectiles: [],
   projIds: 0,
+  enemIds: 0,
   onCd: false,
+  enemys: [],
 }
 const gameSlice = createSlice({
   name: 'game',
@@ -20,11 +25,11 @@ const gameSlice = createSlice({
   reducers: {
     calcPlayerMovement: (state, { payload }) => {
       if (payload.exis === 'horizontal') {
-        state.player.x += shipSpeed * payload.direction
+        state.player.x += playerShipSpeed * payload.direction
         if (state.player.x >= 950) state.player.x = 950
         if (state.player.x <= 0) state.player.x = 0
       } else {
-        state.player.y += shipSpeed * payload.direction
+        state.player.y += playerShipSpeed * payload.direction
         if (state.player.y >= 350) state.player.y = 350
         if (state.player.y <= 0) state.player.y = 0
       }
@@ -32,8 +37,8 @@ const gameSlice = createSlice({
     summonProjectile: (state) => {
       if (performance.now() - lastFire > fireRate) {
         state.projectiles.push({
-          x: state.player.x + 20,
-          y: state.player.y + 70,
+          x: state.player.x + 15,
+          y: state.player.y + 50,
           id: state.projIds,
         })
         lastFire = performance.now()
@@ -56,6 +61,33 @@ const gameSlice = createSlice({
         })
       }
     },
+    summonEnemys: (state) => {
+      if (
+        performance.now() - lastSpawn > enemySpawnRate &&
+        state.enemys.length < 3
+      ) {
+        state.enemys.push({
+          x: Math.floor(Math.random() * 950),
+          y: 650,
+          id: state.enemIds,
+        })
+        state.enemIds++
+        lastSpawn = performance.now()
+      }
+    },
+    deleteEnemys: (state, { payload }) => {
+      const tempEnem = state.enemys.filter((enem) => {
+        if (enem.id != payload) return enem
+      })
+      state.enemys = [...tempEnem]
+    },
+    enemyMoveDown: (state) => {
+      if (state.enemys.length > 0) {
+        state.enemys.forEach((enem) => {
+          enem.y += enemyShipSpeed
+        })
+      }
+    },
   },
 })
 export const {
@@ -64,6 +96,9 @@ export const {
   deleteProjectile,
   projectileMoveUp,
   calcCd,
+  summonEnemys,
+  deleteEnemys,
+  enemyMoveDown,
 } = gameSlice.actions
 export const gameReducer = gameSlice.reducer
 
