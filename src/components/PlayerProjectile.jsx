@@ -9,8 +9,8 @@ const Projectile = styled.div.attrs((props) => ({
     left: props.x + 'px',
   },
 }))`
-  height: 30px;
-  width: 10px;
+  height: 20px;
+  width: 8px;
   position: absolute;
   z-index: 99;
 `

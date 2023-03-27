@@ -7,11 +7,17 @@ import PlayerProjectile from './components/PlayerProjectile'
 import PlayerShip from './components/PlayerShip'
 import {
   calcPlayerMovement,
+  checkColision,
+  checkWaveCleared,
   enemyMoveDown,
-  fire,
+  nextImg,
+  oneSecondTimer,
   projectileMoveUp,
   summonEnemys,
+  summonProjectile,
 } from './Slices/GameSlise'
+import ExplosionAnimation from './components/ExplosionAnimation'
+import WaveCleardInfo from './components/WaveClearedInfo'
 
 let moveup = false
 let movedown = false
@@ -22,7 +28,14 @@ let pause = false
 
 function App() {
   const dispatch = useDispatch()
-  const { player, projectiles, enemys } = useSelector((state) => state.game)
+  const {
+    player,
+    projectiles,
+    enemys,
+    explosions,
+    wave,
+    waveCleared,
+  } = useSelector((state) => state.game)
   const [gamePaused, setGamePaused] = useState(pause)
   const [keys, setkeys] = useState({
     w: false,
@@ -47,7 +60,7 @@ function App() {
           dispatch(calcPlayerMovement({ exis: 'horizontal', direction: +1 }))
         }
         if (playerFire) {
-          dispatch(fire())
+          dispatch(summonProjectile())
         }
         dispatch(projectileMoveUp())
         {
@@ -62,56 +75,60 @@ function App() {
         }
         dispatch(summonEnemys())
         dispatch(enemyMoveDown())
+        dispatch(checkColision())
+        dispatch(nextImg())
+        dispatch(checkWaveCleared())
+        dispatch(oneSecondTimer())
       }
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps
   const setMove = (e) => {
     const tempkeys = { ...keys }
-    if (e.key === 'w') {
+    if (e.keyCode === 87) {
       moveup = true
       tempkeys.w = true
     }
-    if (e.key === 's') {
+    if (e.keyCode === 83) {
       movedown = true
       tempkeys.s = true
     }
-    if (e.key === 'a') {
+    if (e.keyCode === 65) {
       moveleft = true
       tempkeys.a = true
     }
-    if (e.key === 'd') {
+    if (e.keyCode === 68) {
       moveright = true
       tempkeys.d = true
     }
-    if (e.key === ' ') {
+    if (e.keyCode === 32) {
       playerFire = true
       tempkeys.space = true
     }
   }
   const unsetMove = (e) => {
     const tempkeys = { ...keys }
-    if (e.key === 'w') {
+    if (e.keyCode === 87) {
       moveup = false
       tempkeys.w = false
     }
-    if (e.key === 's') {
+    if (e.keyCode === 83) {
       movedown = false
       tempkeys.s = false
     }
-    if (e.key === 'a') {
+    if (e.keyCode === 65) {
       moveleft = false
       tempkeys.a = false
     }
-    if (e.key === 'd') {
+    if (e.keyCode === 68) {
       moveright = false
       tempkeys.d = false
     }
-    if (e.key === ' ') {
+    if (e.keyCode === 32) {
       playerFire = false
       tempkeys.space = false
     }
-    if (e.key === 'p') {
+    if (e.keyCode === 80) {
       pause = !pause
       setGamePaused(pause)
     }
@@ -148,15 +165,25 @@ function App() {
           <span>
             P<p>pause</p>
           </span>
-          <span>
+          <span className="disabled">
             O<p>Options</p>
           </span>
-          <span>
+          <span className="disabled">
             I<p>Shop</p>
           </span>
         </div>
       </div>
       <div className="game">
+        <div className="UI score">Score: {player.score}</div>
+        <div className="UI wave">Wave: {wave.number}</div>
+        {waveCleared.cleared && (
+          <WaveCleardInfo
+            wave={wave.number}
+            score={waveCleared.score}
+            shipsDestroyed={waveCleared.enemyElemenated}
+            time={waveCleared.timer}
+          />
+        )}
         <PauseDisplay pause={gamePaused}>pause</PauseDisplay>
         <PlayerShip x={player.x} y={player.y} />
         {projectiles.map((projectile) => {
@@ -176,6 +203,17 @@ function App() {
               index={enemy.id}
               x={enemy.x}
               y={enemy.y}
+            />
+          )
+        })}
+        {explosions.map((explosion) => {
+          return (
+            <ExplosionAnimation
+              key={explosion.id}
+              index={explosion.id}
+              x={explosion.x}
+              y={explosion.y}
+              image={explosion.img}
             />
           )
         })}
