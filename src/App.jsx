@@ -145,6 +145,19 @@ function App() {
     }
   }, []) //key listener
 
+  useEffect(() => {
+    const baseImage = 'explosion/explosion'
+    const images = []
+    for (let i = 1; i < 26; i++) {
+      const image = new Image()
+      image.src = baseImage + i + '.png'
+      image.onload = () => {
+        console.log('loaded image', i)
+      }
+      images.push(image)
+    }
+  }, [])
+
   return (
     <div className="App">
       <img className="wallpaper" src="wallpaper.jpg" />
@@ -196,6 +209,7 @@ function App() {
             score={waveCleared.score}
             shipsDestroyed={waveCleared.enemyElemenated}
             time={waveCleared.timer}
+            waveShips={wave.enemys}
           />
         )}
 
@@ -236,7 +250,7 @@ function App() {
         {gameSean === 'gameover' && (
           <GameOverDisplay
             score={player.score}
-            shipsDestroyed={player.shipsDestroyed}
+            shipsDestroyed={player.totalShipsDestroyed}
           />
         )}
         {gameSean === 'home' && <HomeDisplay />}

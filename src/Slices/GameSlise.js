@@ -17,7 +17,8 @@ const initialState = {
     y: 175,
     score: 0,
     health: 10,
-    shipsDestroyed: 0,
+    waveShipsDestroyed: 0,
+    totalShipsDestroyed: 0,
   },
   damaged: false,
   projectiles: [],
@@ -29,7 +30,6 @@ const initialState = {
   wave: {
     number: 1,
     enemys: 3,
-    reward: Math.floor(Math.random() * 20),
   },
   enemySummoned: 0,
   waveCleared: {
@@ -175,7 +175,8 @@ const gameSlice = createSlice({
                 (proj.y + 10 >= enem.y && proj.y + 10 <= enem.y + 60))
             ) {
               state.player.score++
-              state.player.shipsDestroyed++
+              state.player.waveShipsDestroyed++
+              state.player.totalShipsDestroyed++
               state.enemys = state.enemys.filter((enemy) => {
                 if (enemy.id != enem.id) return enemy
               })
@@ -248,19 +249,19 @@ const gameSlice = createSlice({
       ) {
         if (!state.waveCleared.cleared) {
           state.waveCleared.cleared = true
-          state.waveCleared.enemyElemenated = state.wave.enemys
-          state.waveCleared.score = state.wave.reward
+          state.waveCleared.enemyElemenated = state.player.waveShipsDestroyed
+          state.waveCleared.score = state.player.waveShipsDestroyed * 5
         }
         if (state.waveCleared.timer <= 0) {
-          state.player.score += state.wave.reward
+          state.player.score += state.waveCleared.score
           state.wave.number++
           state.wave.enemys += 1
-          state.wave.reward += Math.floor(Math.random() * 3) + 1
           state.waveCleared.cleared = false
           state.waveCleared.enemyElemenated = 0
           state.waveCleared.score = 0
           state.waveCleared.timer = 5
           state.enemySummoned = 0
+          state.player.waveShipsDestroyed = 0
         }
       }
     },
