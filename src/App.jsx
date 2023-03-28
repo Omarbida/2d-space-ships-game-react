@@ -144,20 +144,22 @@ function App() {
       window.removeEventListener('keyup', unsetMove)
     }
   }, []) //key listener
-
+  const [images, setImages] = useState([])
   useEffect(() => {
-    const baseImage = 'explosion/explosion'
-    const images = []
-    for (let i = 1; i < 26; i++) {
-      const image = new Image()
-      image.src = baseImage + i + '.png'
-      image.onload = () => {
-        console.log('loaded image', i)
+    if (images.length === 0) {
+      const baseImage = 'explosion/explosion'
+      const tmpimages = []
+      for (let i = 1; i < 26; i++) {
+        const image = new Image()
+        image.src = baseImage + i + '.png'
+        image.onload = () => {
+          console.log('loaded image', i)
+        }
+        tmpimages.push(image)
       }
-      images.push(image)
+      setImages(tmpimages)
     }
-  }, [])
-
+  }, [images])
   return (
     <div className="App">
       <img className="wallpaper" src="wallpaper.jpg" />
@@ -242,7 +244,7 @@ function App() {
               index={explosion.id}
               x={explosion.x}
               y={explosion.y}
-              image={explosion.img}
+              image={images?.[explosion.img - 1]?.src}
             />
           )
         })}

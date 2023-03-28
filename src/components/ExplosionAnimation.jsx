@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 const Explosion = styled.div.attrs((props) => ({
@@ -15,7 +16,7 @@ const Explosion = styled.div.attrs((props) => ({
 function ExplosionAnimation(props) {
   return (
     <Explosion className="explosion-anim" x={props.x} y={props.y}>
-      <img src={`explosion/explosion${props.image}.png`} />
+      <img src={props.image} />
     </Explosion>
   )
 }
