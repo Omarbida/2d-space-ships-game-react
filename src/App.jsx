@@ -6,18 +6,20 @@ import EnemyShip from './components/EnemyShip'
 import PlayerProjectile from './components/PlayerProjectile'
 import PlayerShip from './components/PlayerShip'
 import HomeDisplay from './components/HomeDisplay'
+import EnemyProjectile from './components/EnemyProjectile'
 import {
   calcPlayerMovement,
   checkColision,
   checkGameOver,
   checkWaveCleared,
-  enemyMoveDown,
+  calcEnemyMovement,
   nextImg,
   oneSecondTimer,
   pauseGame,
-  projectileMoveUp,
+  calcProjectileMovement,
   summonEnemys,
   summonProjectile,
+  checkProjectileOutOfScreen,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
@@ -41,6 +43,7 @@ function App() {
     gameSean,
     damaged,
     healthBar,
+    enemyProjectiles,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -66,7 +69,7 @@ function App() {
       if (playerFire) {
         dispatch(summonProjectile())
       }
-      dispatch(projectileMoveUp())
+
       {
         const tempkeys = {
           w: moveup,
@@ -77,13 +80,15 @@ function App() {
         }
         setkeys(tempkeys)
       }
+      dispatch(calcProjectileMovement())
       dispatch(summonEnemys())
-      dispatch(enemyMoveDown())
+      dispatch(calcEnemyMovement())
       dispatch(checkColision())
       dispatch(nextImg())
       dispatch(checkWaveCleared())
       dispatch(oneSecondTimer())
       dispatch(checkGameOver())
+      dispatch(checkProjectileOutOfScreen())
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps
@@ -152,9 +157,6 @@ function App() {
       for (let i = 1; i < 26; i++) {
         const image = new Image()
         image.src = baseImage + i + '.png'
-        image.onload = () => {
-          console.log('loaded image', i)
-        }
         tmpimages.push(image)
       }
       setImages(tmpimages)
@@ -226,6 +228,17 @@ function App() {
             />
           )
         })}
+        {enemyProjectiles.map((projectile) => {
+          return (
+            <EnemyProjectile
+              key={projectile.id}
+              index={projectile.id}
+              x={projectile.x}
+              y={projectile.y}
+              type={projectile.type}
+            />
+          )
+        })}
         {enemys.map((enemy) => {
           return (
             <EnemyShip
@@ -234,6 +247,7 @@ function App() {
               x={enemy.x}
               y={enemy.y}
               ship={enemy.ship}
+              health={enemy.health.percentage}
             />
           )
         })}

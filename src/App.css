@@ -148,16 +148,17 @@
   z-index: 99;
 }
 .game .UI.health {
-  top: 20px;
+  bottom: 20px;
   left: 20px;
   width: 327px;
   height: 40px;
   display: flex;
   background: rgba(0, 255, 255, 0.3);
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
   overflow: hidden;
   gap: 4px;
   transform: skewX(-8deg);
+  z-index: 1000;
 }
 
 .game .UI.health .health-rectangle {
@@ -186,12 +187,19 @@ img.ship-thruster-img {
   top: 60px;
   left: 10px;
   animation: thrusterAnim 150ms infinite ease-in-out;
+  filter: contrast(1.5) brightness(1.5) saturate(1.5)
+    drop-shadow(0 0 10px rgba(216, 125, 20, 1));
 }
 .projectile-img {
   height: 20px;
   width: 8px;
   position: absolute;
   left: 0px;
+  z-index: 98;
+  filter: contrast(1.5) brightness(1.5)
+    drop-shadow(0 0 5px rgba(0, 162, 255, 1));
+  transform: scaleY(1.5);
+  animation: projectileAnim 150ms infinite linear;
 }
 img.enemy-ship-img {
   position: absolute;
@@ -209,52 +217,142 @@ img.ship-thruster-img.enemy {
   left: 0;
   animation: thrusterAnim 150ms infinite linear;
   z-index: 97;
+  filter: contrast(1.5) brightness(1.5) saturate(1.5)
+    drop-shadow(0 0 10px rgba(216, 125, 20, 1));
+}
+.enemy-projectile-img {
+  rotate: 180deg;
+  height: 20px;
+  width: 8px;
+  position: absolute;
+  left: 0px;
+  z-index: 98;
+  transform: scaleY(1.5);
+  animation: projectileAnim 150ms infinite linear;
+}
+.enemy-projectile-img.yellow {
+  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
+    drop-shadow(0 0 5px rgba(43, 255, 0, 1));
+}
+.enemy-projectile-img.red {
+  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
+    drop-shadow(0 0 5px rgba(255, 0, 0, 1));
+}
+.enemy-projectile-img.blue {
+  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
+    drop-shadow(0 0 5px rgba(0, 162, 255, 1));
+}
+.enemy-projectile-img.purple {
+  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
+    drop-shadow(0 0 5px rgba(255, 0, 255, 1));
+}
+.enemy-projectile-img.green {
+  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
+    drop-shadow(0 0 5px rgba(43, 255, 0, 1));
 }
 
 @keyframes thrusterAnim {
   0% {
-    scale: 145%;
-    opacity: 0.7;
+    scale: 140%;
+    opacity: 0.5;
+    transform: scaleY(0.5);
   }
   10% {
     scale: 150%;
     opacity: 1;
+    transform: scaleY(1);
   }
   20% {
-    scale: 155%;
-    opacity: 0.7;
+    scale: 160%;
+    opacity: 0.5;
+    transform: scaleY(0.5);
   }
   30% {
     scale: 150%;
     opacity: 1;
+    transform: scaleY(1);
   }
   40% {
-    scale: 145%;
-    opacity: 0.7;
+    scale: 140%;
+    opacity: 0.5;
+    transform: scaleY(0.5);
   }
   50% {
     scale: 150%;
     opacity: 1;
+    transform: scaleY(1);
   }
   60% {
-    scale: 155%;
-    opacity: 0.7;
+    scale: 160%;
+    opacity: 0.5;
+    transform: scaleY(0.5);
   }
   70% {
     scale: 150%;
     opacity: 1;
+    transform: scaleY(1);
   }
 
   80% {
-    scale: 145%;
-    opacity: 0.7;
+    scale: 140%;
+    opacity: 0.5;
+    transform: scaleY(0.5);
   }
   90% {
     scale: 150%;
     opacity: 1;
+    transform: scaleY(1);
   }
   100% {
-    scale: 155%;
+    scale: 160%;
+    opacity: 0.5;
+    transform: scaleY(0.5);
+  }
+}
+
+@keyframes projectileAnim {
+  0% {
+    scale: 90%;
+    opacity: 1;
+  }
+  10% {
+    scale: 100%;
     opacity: 0.7;
+  }
+  20% {
+    scale: 110%;
+    opacity: 1;
+  }
+  30% {
+    scale: 90%;
+    opacity: 0.7;
+  }
+  40% {
+    scale: 100%;
+    opacity: 1;
+  }
+  50% {
+    scale: 110%;
+    opacity: 0.7;
+  }
+  60% {
+    scale: 90%;
+    opacity: 1;
+  }
+  70% {
+    scale: 100%;
+    opacity: 0.7;
+  }
+  80% {
+    scale: 110%;
+    opacity: 1;
+  }
+  90% {
+    scale: 90%;
+    opacity: 0.7;
+  }
+  100% {
+    scale: 100%;
+    opacity: 1;
   }
 }
