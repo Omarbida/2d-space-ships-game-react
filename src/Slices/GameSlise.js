@@ -21,7 +21,7 @@ let enemysTypes = [
     ySpeed: 0.2,
     xSpeed: 0.2,
     ship: 1,
-    fireRate: 2000,
+    fireRate: 700,
     projectile: {
       speed: 3.2,
       type: 'blue',
@@ -39,7 +39,7 @@ let enemysTypes = [
     ySpeed: 0.2,
     xSpeed: 0.2,
     ship: 2,
-    fireRate: 4000,
+    fireRate: 1000,
     projectile: {
       speed: 2.9,
       type: 'red',
@@ -57,7 +57,7 @@ let enemysTypes = [
     ySpeed: 0.2,
     xSpeed: 0.2,
     ship: 3,
-    fireRate: 6000,
+    fireRate: 1400,
     projectile: {
       speed: 2.6,
       type: 'green',
@@ -75,7 +75,7 @@ let enemysTypes = [
     ySpeed: 0.2,
     xSpeed: 0.2,
     ship: 4,
-    fireRate: 8000,
+    fireRate: 1800,
     projectile: {
       speed: 2.3,
       type: 'purple',
@@ -93,7 +93,7 @@ let enemysTypes = [
     ySpeed: 0.2,
     xSpeed: 0.4,
     ship: 5,
-    fireRate: 10000,
+    fireRate: 2200,
     projectile: {
       speed: 2,
       type: 'yellow',
