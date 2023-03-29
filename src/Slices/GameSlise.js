@@ -118,8 +118,8 @@ const initialState = {
   enemys: [],
   explosions: [],
   wave: {
-    number: 30,
-    enemys: 40,
+    number: 1,
+    enemys: 3,
   },
   enemySummoned: 0,
   waveCleared: {
