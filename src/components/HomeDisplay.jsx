@@ -6,7 +6,7 @@ function HomeDisplay(props) {
   return (
     <div className="model">
       <div className="model-info">
-        <h1 className="h">Space Invaders</h1>
+        <h1 className="h1">Space Invaders</h1>
         <button
           onClick={() => {
             dispatch(startGame())

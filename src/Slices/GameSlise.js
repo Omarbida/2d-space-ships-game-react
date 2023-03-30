@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const playerShipSpeed = 3
 const projectileSpeed = 5
-const fireRate = 300
+
 let lastFire = 0
 const enemySpawnRate = 1000
 let lastSpawn = 0
 let timer = 1000
 let lastTimer1 = 0
+let oreSpeed = 0.2
+
 let enemysTypes = [
   {
     name: 'enemy1',
@@ -17,13 +18,13 @@ let enemysTypes = [
       percentage: 100,
     },
     damage: 1,
-    score: 3,
-    ySpeed: 0.2,
-    xSpeed: 0.2,
+    score: 15,
+    speed: 1,
     ship: 1,
     fireRate: 700,
+    oreDrop: 3,
     projectile: {
-      speed: 3.2,
+      speed: 5,
       type: 'blue',
     },
   },
@@ -35,13 +36,13 @@ let enemysTypes = [
       percentage: 100,
     },
     damage: 1,
-    score: 7,
-    ySpeed: 0.2,
-    xSpeed: 0.2,
+    score: 12,
+    speed: 0.8,
     ship: 2,
     fireRate: 1000,
+    oreDrop: 2,
     projectile: {
-      speed: 2.9,
+      speed: 4,
       type: 'red',
     },
   },
@@ -53,13 +54,13 @@ let enemysTypes = [
       percentage: 100,
     },
     damage: 1,
-    score: 10,
-    ySpeed: 0.2,
-    xSpeed: 0.2,
+    score: 9,
+    speed: 0.6,
     ship: 3,
     fireRate: 1400,
+    oreDrop: 4,
     projectile: {
-      speed: 2.6,
+      speed: 3,
       type: 'green',
     },
   },
@@ -71,13 +72,13 @@ let enemysTypes = [
       percentage: 100,
     },
     damage: 1,
-    score: 13,
-    ySpeed: 0.2,
-    xSpeed: 0.2,
+    score: 7,
+    speed: 0.4,
     ship: 4,
     fireRate: 1800,
+    oreDrop: 5,
     projectile: {
-      speed: 2.3,
+      speed: 2.5,
       type: 'purple',
     },
   },
@@ -89,68 +90,115 @@ let enemysTypes = [
       percentage: 100,
     },
     damage: 1,
-    score: 15,
-    ySpeed: 0.2,
-    xSpeed: 0.4,
+    score: 3,
+
+    speed: 0.4,
     ship: 5,
     fireRate: 2200,
+    oreDrop: 1,
     projectile: {
-      speed: 2,
+      speed: 3,
       type: 'yellow',
     },
   },
 ]
+let oreTypes = [
+  {
+    name: 'ore1',
+    value: 1,
+    img: 'ore1',
+  },
+  {
+    name: 'ore2',
+    value: 4,
+    img: 'ore2',
+  },
+  {
+    name: 'ore3',
+    value: 5,
+    img: 'ore3',
+  },
+  {
+    name: 'ore4',
+    value: 3,
+    img: 'ore4',
+  },
+  {
+    name: 'ore5',
+    value: 2,
+    img: 'ore5',
+  },
+]
+
 const initialState = {
   gameSean: 'home',
   player: {
+    ShipSpeed: 3,
+    shipVelocity: 0.1,
+    fireRate: 500,
     x: 475,
     y: 175,
     score: 0,
+    money: 0,
     health: 10,
     waveShipsDestroyed: 0,
     totalShipsDestroyed: 0,
+    xVelocity: 0.1,
+    yVelocity: 0.1,
   },
-  damaged: false,
-  projectiles: [],
-  projIds: 0,
-  enemIds: 0,
-  explosionIds: 0,
-  enemys: [],
-  explosions: [],
+  waveCleared: {
+    cleared: false,
+    enemyElemenated: 0,
+    waveClearedScore: 0,
+    score: 0,
+    timer: 5,
+  },
   wave: {
     number: 1,
     enemys: 3,
   },
-  enemySummoned: 0,
-  waveCleared: {
-    cleared: false,
-    enemyElemenated: 0,
-    score: 0,
-    timer: 5,
-  },
+  ores: [],
+  projectiles: [],
+  enemys: [],
+  explosions: [],
   healthBar: [],
   enemyProjectiles: [],
+  timeNow: 0,
+  damaged: false,
+  projIds: 0,
+  enemIds: 0,
   enemyProjIds: 0,
+  explosionIds: 0,
+  oreIds: 0,
+  enemySummoned: 0,
 }
 const gameSlice = createSlice({
   name: 'game',
   initialState,
   reducers: {
+    setTimeNow: (state) => {
+      if (state.gameSean !== 'game') return
+      state.timeNow = performance.now()
+    },
     calcPlayerMovement: (state, { payload }) => {
       if (state.gameSean !== 'game') return
-      if (payload.exis === 'horizontal') {
-        state.player.x += playerShipSpeed * payload.direction
-        if (state.player.x >= 950) state.player.x = 950
-        if (state.player.x <= 0) state.player.x = 0
+
+      if (payload.exis == 'horizontal') {
+        state.player.x += state.player.ShipSpeed * payload.direction
+        if (state.player.x < 0) state.player.x = 0
+        if (state.player.x > 950) state.player.x = 950
+        state.player.lastX = state.player.x
       } else {
-        state.player.y += playerShipSpeed * payload.direction
-        if (state.player.y >= 350) state.player.y = 350
-        if (state.player.y <= 0) state.player.y = 0
+        state.player.y += state.player.ShipSpeed * payload.direction
+        if (state.player.y < 0) state.player.y = 0
+        if (state.player.y > 350) state.player.y = 350
+        state.player.lastY = state.player.y
       }
     },
+
     oneSecondTimer: (state) => {
       if (state.gameSean !== 'game') return
-      const timeNow = performance.now()
+      const timeNow = state.timeNow
       if (timeNow - lastTimer1 > timer) {
         lastTimer1 = timeNow
         if (state.waveCleared.cleared) {
@@ -160,13 +208,13 @@ const gameSlice = createSlice({
     },
     summonProjectile: (state) => {
       if (state.gameSean !== 'game') return
-      if (performance.now() - lastFire > fireRate) {
+      if (state.timeNow - lastFire > state.player.fireRate) {
         state.projectiles.push({
           x: state.player.x + 15,
           y: state.player.y + 50,
           id: state.projIds,
         })
-        lastFire = performance.now()
+        lastFire = state.timeNow
         state.projIds++
       }
     },
@@ -200,53 +248,110 @@ const gameSlice = createSlice({
         })
       }
     },
+    calcOreMovement: (state) => {
+      if (state.gameSean !== 'game') return
+      if (state.ores.length > 0) {
+        state.ores.forEach((ore) => {
+          const triangleBase = Math.abs(ore.x - state.player.x)
+          const triangleHeight = Math.abs(ore.y - state.player.y)
+          const triangleHypotenuse = Math.sqrt(
+            Math.pow(triangleBase, 2) + Math.pow(triangleHeight, 2),
+          )
+          const angle = Math.asin(triangleHeight / triangleHypotenuse)
+          const xSpeed = Math.cos(angle) * oreSpeed * ore.oreVelocity
+          const ySpeed = Math.sin(angle) * oreSpeed * ore.oreVelocity
+
+          if (ore.x > state.player.x) {
+            ore.x -= xSpeed
+          } else {
+            ore.x += xSpeed
+          }
+          if (ore.y > state.player.y) {
+            ore.y -= ySpeed
+          }
+          if (ore.y < state.player.y) {
+            ore.y += ySpeed
+          }
+          ore.oreVelocity += ore.oreVelocity * 0.02
+        })
+      }
+    },
     summonEnemys: (state) => {
       if (state.gameSean !== 'game') return
+      const randomX = Math.floor(Math.random() * 950)
       if (
-        performance.now() - lastSpawn > enemySpawnRate &&
+        state.timeNow - lastSpawn > enemySpawnRate &&
         state.enemySummoned < state.wave.enemys &&
         state.enemys.length < 7
       ) {
         state.enemys.push({
-          x: Math.floor(Math.random() * 950),
+          x: randomX,
           y: 650,
           goTo: {
-            x: goToRandomPosition().x,
-            y: goToRandomPosition().y,
+            x: goToRandomPosition({
+              x: randomX,
+              y: 650,
+            }).x,
+            y: goToRandomPosition({ x: randomX, y: 650 }).y,
           },
+          lastGoToX: 0,
+          lastGoToY: 0,
+          goToRate: 4000,
           id: state.enemIds,
           lastFire: 0,
-
+          enemVelocityX: 0.5,
+          enemVelocityY: 0.5,
           ...enemysTypes[calcSpawnRate(state.wave.number) - 1],
         })
         state.enemIds++
         state.enemySummoned++
-        lastSpawn = performance.now()
+        lastSpawn = state.timeNow
       }
     },
-
     calcEnemyMovement: (state) => {
       if (state.gameSean !== 'game') return
-      const timeNow = performance.now()
+      const timeNow = state.timeNow
       if (state.enemys.length > 0) {
         state.enemys.forEach((enem) => {
-          if (enem.y < enem.goTo.y) {
-            enem.y += enem.ySpeed
-          } else if (enem.y > enem.goTo.y) {
-            enem.y -= enem.ySpeed
+          const triangleBase = Math.abs(enem.x - enem.goTo.x)
+          const triangleHeight = Math.abs(enem.y - enem.goTo.y)
+          const triangleHypotenuse = Math.sqrt(
+            Math.pow(triangleBase, 2) + Math.pow(triangleHeight, 2),
+          )
+          const angle = Math.asin(triangleHeight / triangleHypotenuse)
+          const xSpeed = Math.cos(angle) * enem.speed * enem.enemVelocityX
+          const ySpeed = Math.sin(angle) * enem.speed * enem.enemVelocityY
+
+          if (enem.x > enem.goTo.x) {
+            enem.x -= xSpeed
+          } else {
+            enem.x += xSpeed
           }
-          if (enem.x < enem.goTo.x) {
-            enem.x += enem.xSpeed
-          } else if (enem.x > enem.goTo.x) {
-            enem.x -= enem.xSpeed
+          if (enem.y > enem.goTo.y) {
+            enem.y -= ySpeed
+          }
+          if (enem.y < enem.goTo.y) {
+            enem.y += ySpeed
+          }
+          enem.enemVelocityY = enem.enemVelocityY * 1.01
+          enem.enemVelocityX = enem.enemVelocityX * 1.04
+          if (enem.enemVelocity > 1.1) enem.enemVelocityY = 1.1
+          if (enem.enemVelocityX > 1.1) enem.enemVelocityX = 1.1
+          if (enem.x - enem.goTo.x > -0.5 && enem.x - enem.goTo.x < 0.5) {
+            enem.goTo.x = goToRandomPosition({
+              x: enem.x,
+              y: enem.y,
+            }).x
+            enem.enemVelocityX = 0.2
+          }
+          if (enem.y - enem.goTo.y > -0.5 && enem.y - enem.goTo.y < 0.5) {
+            enem.goTo.y = goToRandomPosition({
+              x: enem.x,
+              y: enem.y,
+            }).y
+            enem.enemVelocityY = 0.1
           }
 
-          if (enem.y < enem.goTo.y + 5 && enem.y > enem.goTo.y - 5) {
-            enem.goTo.y = goToRandomPosition().y
-          }
-          if (enem.x < enem.goTo.x + 5 && enem.x > enem.goTo.x - 5) {
-            enem.goTo.x = goToRandomPosition().x
-          }
           // enemy fire
           if (timeNow - enem.lastFire > enem.fireRate) {
             state.enemyProjectiles.push({
@@ -278,15 +383,18 @@ const gameSlice = createSlice({
       state.gameRuning = true
       state.gameSean = 'game'
       state.player = initialState.player
-      state.projectiles = initialState.projectiles
-      state.projIds = initialState.projIds
-      state.enemIds = initialState.enemIds
-      state.explosionIds = initialState.explosionIds
-      state.enemys = initialState.enemys
-      state.explosions = initialState.explosions
-      state.wave = initialState.wave
-      state.enemySummoned = initialState.enemySummoned
-      state.waveCleared = initialState.waveCleared
+      state.enemys = []
+      state.projectiles = []
+      state.enemyProjectiles = []
+      state.ores = []
+      state.healthBar = []
+      state.projIds = 0
+      state.enemyProjIds = 0
+      state.enemIds = 0
+      state.explosionIds = 0
+      state.oreIds = 0
+      state.enemySummoned = 0
+      state.timeNow = 0
     },
     pauseGame: (state) => {
       if (state.gameSean === 'pause') {
@@ -318,8 +426,8 @@ const gameSlice = createSlice({
                 enem.health.current -= 1
                 enem.health.percentage =
                   (enem.health.current / enem.health.max) * 100
-                console.log(enem.health.percentage)
               }
+              // enemy death
               if (enem.health.current <= 0) {
                 state.score += enem.score
                 state.enemys = state.enemys.filter((enemy) => {
@@ -331,12 +439,23 @@ const gameSlice = createSlice({
                   id: state.explosionIds,
                   img: 1,
                 })
+                state.ores.push({
+                  id: state.oreIds,
+                  x: enem.x + 10,
+                  y: enem.y + 10,
+                  oreVelocity: 0.3,
+                  ...oreTypes[enem.oreDrop - 1],
+                })
+                state.player.waveShipsDestroyed++
+                state.player.score += enem.score
                 state.explosionIds++
+                state.oreIds++
               }
             }
           })
         })
       }
+
       if (state.enemys.length > 0) {
         state.enemys.forEach((enem) => {
           if (
@@ -386,6 +505,28 @@ const gameSlice = createSlice({
         })
       }
     },
+    checkColisionWithOre: (state) => {
+      if (state.gameSean !== 'game') return
+      if (state.ores.length > 0) {
+        state.ores.forEach((ore) => {
+          if (
+            ((ore.x + 5 >= state.player.x + 5 &&
+              ore.x + 5 <= state.player.x + 35) ||
+              (ore.x + 35 >= state.player.x + 5 &&
+                ore.x + 35 <= state.player.x + 35)) &&
+            ((ore.y + 5 >= state.player.y + 5 &&
+              ore.y + 5 <= state.player.y + 55) ||
+              (ore.y + 55 >= state.player.y + 5 &&
+                ore.y + 55 <= state.player.y + 55))
+          ) {
+            state.ores = state.ores.filter((ore1) => {
+              if (ore.id != ore1.id) return ore1
+            })
+            state.player.money += ore.value
+          }
+        })
+      }
+    },
     nextImg: (state) => {
       if (state.explosions.length > 0) {
         state.explosions.forEach((explosion) => {
@@ -418,10 +559,14 @@ const gameSlice = createSlice({
         if (!state.waveCleared.cleared) {
           state.waveCleared.cleared = true
           state.waveCleared.enemyElemenated = state.player.waveShipsDestroyed
-          state.waveCleared.score = state.player.waveShipsDestroyed * 5
+          state.waveCleared.score = state.player.waveShipsDestroyed * 2
+          state.waveCleared.waveClearedScore = state.wave.number * 2
+          state.waveCleared.total =
+            state.waveCleared.score + state.wave.number * 2
         }
         if (state.waveCleared.timer <= 0) {
-          state.player.score += state.waveCleared.score
+          state.player.score += state.waveCleared.total
+          state.player.money += state.waveCleared.total
           state.wave.number++
           state.wave.enemys += 1
           state.waveCleared.cleared = false
@@ -433,9 +578,17 @@ const gameSlice = createSlice({
         }
       }
     },
+    openShop: (state) => {
+      if (state.gameSean === 'game') {
+        state.gameSean = 'shop'
+      } else if (state.gameSean === 'shop') {
+        state.gameSean = 'game'
+      }
+    },
   },
 })
 export const {
+  calcOreMovement,
   calcPlayerMovement,
   summonProjectile,
   deleteProjectile,
@@ -443,6 +596,7 @@ export const {
   summonEnemys,
   calcEnemyMovement,
   checkColision,
+  checkColisionWithOre,
   deleteExplosion,
   nextImg,
   checkWaveCleared,
@@ -452,6 +606,8 @@ export const {
   pauseGame,
   homeSean,
   checkProjectileOutOfScreen,
+  openShop,
+  setTimeNow,
 } = gameSlice.actions
 export const gameReducer = gameSlice.reducer
 
@@ -497,8 +653,26 @@ function calcSpawnRate(wave) {
     }
   }
 }
-function goToRandomPosition() {
-  const x = Math.floor(Math.random() * 950)
-  const y = 400 + Math.floor(Math.random() * 250)
+function goToRandomPosition(currentPos) {
+  let x = 0 //Math.floor(Math.random() * 950)
+  let y = 0 //350 + Math.floor(Math.random() * 250)
+  if (currentPos.x >= 950 / 2) {
+    x = Math.floor(Math.random() * 400)
+  } else {
+    x = 950 - 400 + Math.floor(Math.random() * 400)
+  }
+  if (currentPos.y >= 700 / 2 + 350 / 2) {
+    y = 350 + Math.floor(Math.random() * 100)
+  } else {
+    y = 600 + Math.floor(Math.random() * 50)
+  }
+
+  // while (x > currentX - 100 && x < currentX + 100) {
+  //   x = Math.floor(Math.random() * 950)
+  // }
+  // while (y > currentY - 100 && y < currentY + 100) {
+  //   y = 350 + Math.floor(Math.random() * 250)
+  // }
+
   return { x, y }
 }

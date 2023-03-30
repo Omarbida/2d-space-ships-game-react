@@ -7,6 +7,8 @@ import PlayerProjectile from './components/PlayerProjectile'
 import PlayerShip from './components/PlayerShip'
 import HomeDisplay from './components/HomeDisplay'
 import EnemyProjectile from './components/EnemyProjectile'
+import ShopDisplay from './components/ShopDisplay'
+import Ore from './components/Ore'
 import {
   calcPlayerMovement,
   checkColision,
@@ -20,6 +22,10 @@ import {
   summonEnemys,
   summonProjectile,
   checkProjectileOutOfScreen,
+  openShop,
+  calcOreMovement,
+  checkColisionWithOre,
+  setTimeNow,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
@@ -44,6 +50,7 @@ function App() {
     damaged,
     healthBar,
     enemyProjectiles,
+    ores,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -89,6 +96,9 @@ function App() {
       dispatch(oneSecondTimer())
       dispatch(checkGameOver())
       dispatch(checkProjectileOutOfScreen())
+      dispatch(calcOreMovement())
+      dispatch(checkColisionWithOre())
+      dispatch(setTimeNow())
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps
@@ -140,6 +150,9 @@ function App() {
     if (e.keyCode === 80) {
       dispatch(pauseGame())
     }
+    if (e.keyCode === 73) {
+      dispatch(openShop())
+    }
   }
   useEffect(() => {
     window.addEventListener('keydown', setMove)
@@ -161,7 +174,7 @@ function App() {
       }
       setImages(tmpimages)
     }
-  }, [images])
+  }, [images]) // load explosion images
   return (
     <div className="App">
       <img className="wallpaper" src="wallpaper.jpg" />
@@ -198,23 +211,24 @@ function App() {
       <div className="game">
         {gameSean !== 'home' && (
           <>
-            <div className="UI score">Score: {player.score}</div>
-            <div className="UI wave">Wave: {wave.number}</div>
+            <div className="UI score">
+              Score:{' '}
+              <span className="hammersmithfont UI-num">{player.score}</span>
+            </div>
+            <div className="UI wave">
+              Wave:{' '}
+              <span className="hammersmithfont UI-num">{wave.number}</span>
+            </div>
+            <div className="UI money">
+              Neptunium:{' '}
+              <span className="hammersmithfont UI-num">{player.money}</span>
+            </div>
             <div className="UI health">
               {healthBar.map((bar) => {
                 return <div key={bar} className="health-rectangle"></div>
               })}
             </div>
           </>
-        )}
-        {waveCleared.cleared && (
-          <WaveCleardInfo
-            wave={wave.number}
-            score={waveCleared.score}
-            shipsDestroyed={waveCleared.enemyElemenated}
-            time={waveCleared.timer}
-            waveShips={wave.enemys}
-          />
         )}
 
         {gameSean !== 'home' && <PlayerShip x={player.x} y={player.y} />}
@@ -262,7 +276,17 @@ function App() {
             />
           )
         })}
-
+        {ores.map((ore) => {
+          return (
+            <Ore
+              key={ore.id}
+              index={ore.id}
+              x={ore.x}
+              y={ore.y}
+              img={ore.img}
+            />
+          )
+        })}
         {gameSean === 'gameover' && (
           <GameOverDisplay
             score={player.score}
@@ -271,6 +295,19 @@ function App() {
         )}
         {gameSean === 'home' && <HomeDisplay />}
         {gameSean === 'pause' && <PauseDisplay>pause</PauseDisplay>}
+        {gameSean === 'shop' && <ShopDisplay money={player.money} />}
+
+        {waveCleared.cleared && (
+          <WaveCleardInfo
+            wave={wave.number}
+            score={waveCleared.score}
+            shipsDestroyed={waveCleared.enemyElemenated}
+            time={waveCleared.timer}
+            waveShips={wave.enemys}
+            total={waveCleared.total}
+            waveClearedScore={waveCleared.waveClearedScore}
+          />
+        )}
         <div
           className="model damaged active"
           style={{ opacity: damaged + '%' }}
