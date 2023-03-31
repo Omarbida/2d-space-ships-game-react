@@ -58,6 +58,7 @@ function App() {
     enemyProjectiles,
     ores,
     playerMissiles,
+    shopItems,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -219,7 +220,6 @@ function App() {
           </span>
         </div>
       </div>
-
       <div className="game">
         {gameSean !== 'home' && (
           <>
@@ -242,7 +242,6 @@ function App() {
             </div>
           </>
         )}
-
         {gameSean !== 'home' && <PlayerShip x={player.x} y={player.y} />}
         {projectiles.map((projectile) => {
           return (
@@ -318,7 +317,9 @@ function App() {
         })}
         {gameSean === 'home' && <HomeDisplay />}
         {gameSean === 'pause' && <PauseDisplay>pause</PauseDisplay>}
-        {gameSean === 'shop' && <ShopDisplay money={player.money} />}
+        {gameSean === 'shop' && (
+          <ShopDisplay money={player.money} shopItems={shopItems} />
+        )}
 
         {waveCleared.cleared && gameSean !== 'shop' && (
           <WaveCleardInfo

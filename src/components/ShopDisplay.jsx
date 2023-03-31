@@ -15,16 +15,20 @@ const Span = styled.span`
   font-size: 25px;
 `
 const ItemsContainer = styled.div`
-  height: 300px;
+  min-height: 300px;
   width: 100%;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  flex-wrap: wrap;
   filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.356));
 `
-const ItemWrapper = styled.div`
+const ItemWrapper = styled.div.attrs((props) => ({
+  style: {
+    order: props.order,
+  },
+}))`
   width: 150px;
+  height: 100%;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -65,15 +69,23 @@ const Img = styled.img`
   width: 20px;
   margin-right: 5px;
 `
-const MisileDive = styled.div`
+const Icon = styled.div`
   height: 100%;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 `
 const MissileImg = styled.img`
   height: 100%;
   width: 100%;
 `
-const InfoPara = styled.p`
+const InfoPara = styled.p.attrs((props) => ({
+  style: {
+    textAlign: props.center,
+  },
+}))`
   width: 100%;
   font-family: 'Hammersmith One', sans-serif;
   font-size: 15px;
@@ -84,7 +96,7 @@ const InfoPara = styled.p`
   align-items: center;
   justify-content: ${(props) => props.center || 'space-between'};
   margin: 0;
-  padding: 0;
+  padding: 5px;
 `
 
 function ShopDisplay(props) {
@@ -101,43 +113,86 @@ function ShopDisplay(props) {
           </Span>
         </h1>
         <ItemsContainer>
-          {shopItems.map((item) => {
-            return (
-              <ItemWrapper
+          {shopItems[0] && (
+            <ItemWrapper
+              order={2}
+              disabled={shopItems[0].canBuy}
+              key={shopItems[0].name}
+            >
+              <InfoPara center={'center'}>{shopItems[0].name}</InfoPara>
+              <Item
                 onClick={() => {
-                  if (item.canBuy) {
-                    dispatch(buyItem(item.name))
+                  if (shopItems[0].canBuy) {
+                    dispatch(buyItem(shopItems[0].name))
                   }
                 }}
-                disabled={item.canBuy}
-                key={item.name}
+                disabled={shopItems[0].canBuy}
               >
-                <InfoPara center={'center'}>{item.name}</InfoPara>
-                <Item disabled={item.canBuy}>
-                  <MisileDive>
-                    <MissileImg src={item.lable} />
-                  </MisileDive>
-                </Item>
-                <ItemInfo>
-                  {item.level !== 0 && (
-                    <InfoPara>
-                      Level :{' '}
-                      <span>{item.level === 5 ? 'max' : item.level}</span>
-                    </InfoPara>
-                  )}
-                  <InfoPara>
-                    Damage : <span>{item.damage}</span>
-                  </InfoPara>
-                  <InfoPara>
-                    Rate : <span>1/{item.fireRate / 1000} s</span>
-                  </InfoPara>
+                <Icon>
+                  <MissileImg src={shopItems[0].lable} />
+                </Icon>
+              </Item>
+              <ItemInfo>
+                <InfoPara>
+                  Level :{' '}
+                  <span>
+                    {shopItems[0].level === 5 ? 'max' : shopItems[0].level}
+                  </span>
+                </InfoPara>
+
+                <InfoPara>
+                  Damage : <span>{shopItems[0].damage}</span>
+                </InfoPara>
+                <InfoPara>
+                  Rate :{' '}
+                  <span>
+                    {(1 / (shopItems[0].fireRate / 1000)).toFixed(2)} M/s
+                  </span>
+                </InfoPara>
+                {shopItems[0].level !== 5 && (
                   <InfoPara center={'center'}>
-                    <Img src="ores/ore2.png" alt="" /> {item.cost}
+                    <Img src="ores/ore2.png" alt="" /> {shopItems[0].cost}
                   </InfoPara>
-                </ItemInfo>
-              </ItemWrapper>
-            )
-          })}
+                )}
+              </ItemInfo>
+            </ItemWrapper>
+          )}
+          {shopItems[1] && (
+            <ItemWrapper
+              onClick={() => {
+                if (shopItems[1].canBuy) {
+                  dispatch(buyItem(shopItems[1].name))
+                }
+              }}
+              order={0}
+              disabled={shopItems[1].canBuy}
+              key={shopItems[1].name}
+            >
+              <InfoPara center={'center'}>{shopItems[1].name}</InfoPara>
+              <Item disabled={shopItems[1].canBuy}>
+                <InfoPara center={'center'}>{shopItems[1].lable}</InfoPara>
+              </Item>
+              <ItemInfo>
+                {shopItems[1].level !== 0 && (
+                  <InfoPara>
+                    Level : <span>{shopItems[1].level}</span>
+                  </InfoPara>
+                )}
+                <InfoPara>
+                  Damage : <span>{shopItems[1].damage}</span>
+                </InfoPara>
+                <InfoPara>
+                  Rate :{' '}
+                  <span>
+                    {(1 / (shopItems[1].fireRate / 1000)).toFixed(2)} P/s
+                  </span>
+                </InfoPara>
+                <InfoPara center={'center'}>
+                  <Img src="ores/ore2.png" alt="" /> {shopItems[1].cost}
+                </InfoPara>
+              </ItemInfo>
+            </ItemWrapper>
+          )}
         </ItemsContainer>
       </div>
     </div>

@@ -7,7 +7,6 @@ let lastSpawn = 0
 let timer = 1000
 let lastTimer1 = 0
 let oreSpeed = 0.2
-
 let oreTypes = [
   {
     name: 'ore1',
@@ -41,11 +40,11 @@ const initialState = {
   player: {
     ShipSpeed: 3,
     shipVelocity: 0.1,
-    fireRate: 100,
+    fireRate: 300,
     x: 475,
     y: 175,
     score: 0,
-    money: 1000,
+    money: 10000,
     health: 10,
     waveShipsDestroyed: 0,
     totalShipsDestroyed: 0,
@@ -53,6 +52,7 @@ const initialState = {
     yVelocity: 0.1,
     lastProjectile: 0,
     lastMissile: 0,
+    burstFire: 5,
   },
   waveCleared: {
     cleared: false,
@@ -78,8 +78,18 @@ const initialState = {
       level: 0,
       cost: 100,
       damage: 5,
-      fireRate: 10000,
+      fireRate: 8000,
       lable: 'missile.png',
+      canBuy: false,
+      maxed: false,
+    },
+    {
+      name: 'shipFireRate',
+      level: 1,
+      cost: 100,
+      damage: 1,
+      fireRate: 100,
+      lable: 'Upgrade Fire Rate.',
       canBuy: false,
       maxed: false,
     },
@@ -124,12 +134,30 @@ const gameSlice = createSlice({
     },
     summonProjectile: (state) => {
       if (state.gameSean !== 'game') return
+
       if (state.timeNow - state.player.lastProjectile > state.player.fireRate) {
-        state.projectiles.push({
-          x: state.player.x + 15,
-          y: state.player.y + 50,
-          id: window.crypto.randomUUID(),
-        })
+        for (let i = 0; i < state.player.burstFire; i++) {
+          let tempX = 0
+          let tempY = 0
+          if (i === 0) {
+            tempX = state.player.x + 15
+            tempY = state.player.y + 50
+          } else {
+            if (i % 2 === 0) {
+              tempX = state.player.x + 15 - Math.floor(i / 2) * 15
+            } else {
+              tempX = state.player.x + 15 + (Math.floor(i / 2) + 1) * 15
+            }
+
+            tempY = Math.floor(i / 2) * 5 + state.player.y + 40
+          }
+
+          state.projectiles.push({
+            x: tempX,
+            y: tempY,
+            id: window.crypto.randomUUID(),
+          })
+        }
         state.player.lastProjectile = state.timeNow
       }
     },
@@ -137,15 +165,18 @@ const gameSlice = createSlice({
       if (state.gameSean !== 'game') return
       if (state.shopItems[0].level === 0) return
       if (state.enemys.length === 0) return
-      let side = 0
+      let targetSide = 0
+      let spawnSide = 0
       if (state.lastMissileSide === 'left') {
-        side = 0
+        targetSide = -50
+        spawnSide = -10
         state.lastMissileSide = 'right'
       } else {
-        side = 25
+        targetSide = 50
+        spawnSide = 30
         state.lastMissileSide = 'left'
       }
-      const targetX = state.player.x + side
+      const targetX = state.player.x + targetSide
       const targetY = state.player.y + 50
       const rotation = Math.atan2(
         targetY - state.player.y,
@@ -156,7 +187,7 @@ const gameSlice = createSlice({
         state.shopItems[0].fireRate
       ) {
         state.playerMissiles.push({
-          x: state.player.x + side,
+          x: state.player.x + spawnSide,
           y: state.player.y,
           id: window.crypto.randomUUID(),
           damage: state.shopItems[0].damage,
@@ -165,9 +196,18 @@ const gameSlice = createSlice({
             y: targetY,
           },
           rotation: rotation,
-          missileSpeed: 2,
-          missileVelocity: 0.05,
+          missileSpeed: 10,
           preparingToFly: true,
+          lastUpdate: state.timeNow,
+          velocityX: 0.1,
+          velocityY: 0.1,
+          drag: 1,
+          acceleration: 100,
+          maxSpeed: 3000,
+          maxDistance: 0,
+          missileVelocity: 0.5,
+          maxAcceleration: 500,
+          maxDrag: 2.5,
         })
         state.player.lastMissile = state.timeNow
       }
@@ -248,44 +288,75 @@ const gameSlice = createSlice({
             targetX = missile.target.x
             targetY = missile.target.y
           } else if (state.enemys.length > 0) {
-            targetX = state.enemys[0].x + 20
-            targetY = state.enemys[0].y + 30
+            targetX = state.enemys[0].x + 15
+            targetY = state.enemys[0].y
           } else {
             targetX = missile.target.x
             targetY = missile.target.y + 1000
           }
 
-          const triangleBase = Math.abs(missile.x - targetX)
-          const triangleHeight = Math.abs(missile.y - targetY)
-          const triangleHypotenuse = Math.sqrt(
-            Math.pow(triangleBase, 2) + Math.pow(triangleHeight, 2),
+          const deltaTime = (state.timeNow - missile.lastUpdate) / 1000
+          missile.lastUpdate = state.timeNow
+
+          // calculate the distance between the missile and the target
+          const dx = targetX - missile.x
+          const dy = targetY - missile.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+
+          // calculate the missile's angle to the target
+          const angleToTarget = Math.atan2(dy, dx)
+
+          // calculate the missile's current speed and direction
+          missile.velocityX +=
+            Math.cos(angleToTarget) * missile.acceleration * deltaTime
+          missile.velocityY +=
+            Math.sin(angleToTarget) * missile.acceleration * deltaTime
+
+          // apply drag to the missile's velocity
+          missile.velocityX *= 1 - missile.drag * deltaTime
+          missile.velocityY *= 1 - missile.drag * deltaTime
+
+          // calculate the missile's position based on its velocity
+          missile.x += missile.velocityX * deltaTime
+          missile.y += missile.velocityY * deltaTime
+
+          // calculate the missile's angle based on its velocity
+          missile.rotation =
+            Math.atan2(missile.velocityY, missile.velocityX) + Math.PI / 2
+
+          // adjust the missile's speed based on its distance to the target
+          const speedRatio = Math.min(distance / missile.maxDistance, 1)
+          missile.velocityX *= speedRatio
+          missile.velocityY *= speedRatio
+
+          // update the missile's acceleration based on its distance to the target
+          missile.acceleration = missile.maxAcceleration * speedRatio
+
+          // update the missile's drag based on its distance to the target
+          missile.drag = missile.maxDrag * speedRatio
+
+          // update the missile's max distance based on its current speed
+          missile.maxDistance =
+            (missile.maxSpeed * missile.missileVelocity) / missile.acceleration
+
+          // adjust the missile's velocity based on its max speed
+          if (
+            missile.velocityX * missile.velocityX +
+              missile.velocityY * missile.velocityY >
+            missile.maxSpeed * missile.maxSpeed
+          ) {
+            const angle = Math.atan2(missile.velocityY, missile.velocityX)
+            missile.velocityX = Math.cos(angle) * missile.maxSpeed
+            missile.velocityY = Math.sin(angle) * missile.maxSpeed
+          }
+
+          // update the missile's position and rotation
+          missile.x += missile.velocityX * deltaTime
+          missile.y += missile.velocityY * deltaTime
+          missile.rotation = Math.atan2(
+            missile.velocityX * deltaTime,
+            missile.velocityY * deltaTime,
           )
-          if (missile.missileVelocity > 1.5) missile.missileVelocity = 1.5
-          const angle = Math.asin(triangleHeight / triangleHypotenuse)
-          const xSpeed =
-            Math.cos(angle) * missile.missileSpeed * missile.missileVelocity
-          const ySpeed =
-            Math.sin(angle) * missile.missileSpeed * missile.missileVelocity
-          missile.missileVelocity += missile.missileVelocity * 0.02
-          if (missile.x > targetX) {
-            missile.x -= xSpeed
-            missile.rotation = Math.atan2(
-              targetX - missile.x,
-              targetY - missile.y,
-            )
-          } else {
-            missile.x += xSpeed
-            missile.rotation = Math.atan2(
-              targetX - missile.x,
-              targetY - missile.y,
-            )
-          }
-          if (missile.y > targetY) {
-            missile.y -= ySpeed
-          }
-          if (missile.y < targetY) {
-            missile.y += ySpeed
-          }
         })
       }
     },
@@ -309,8 +380,10 @@ const gameSlice = createSlice({
         state.enemys.length < 7
       ) {
         const health = {
-          max: spawnType + Math.floor(state.wave.number / 5) * spawnType,
-          current: spawnType + Math.floor(state.wave.number / 5),
+          max:
+            spawnType + Math.floor(state.wave.number / 5) * (spawnType * 0.1),
+          current:
+            spawnType + Math.floor(state.wave.number / 5) * (spawnType * 0.1),
           percentage: 100,
         }
         const projectile = {
@@ -692,11 +765,11 @@ const gameSlice = createSlice({
                 if (item.level === 0) {
                   state.player.money -= item.cost
                   item.level++
-                  item.cost += 100
+                  item.cost += 50 + (50 * item.level) / 2
                 } else {
                   item.level++
-                  item.damage = Math.floor(item.damage * 1.5)
-                  item.fireRate = Math.floor(item.fireRate * 0.9)
+                  item.damage += 2
+                  item.fireRate -= 1500
                   state.player.money -= item.cost
                   item.cost = Math.floor(item.cost * 1.5)
                 }
