@@ -10,10 +10,14 @@ const Orediv = styled.div.attrs((props) => ({
   width: 25px;
   position: absolute;
   z-index: 95;
+  animation: oreShine 100ms infinite linear;
 `
 const Img = styled.img`
   height: 100%;
   width: 100%;
+  filter: contrast(2) brightness(1.5) saturate(0.5)
+    drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+  animation: oreRotate 5000ms infinite linear;
 `
 
 function Ore(props) {

@@ -12,10 +12,11 @@ const Explosion = styled.div.attrs((props) => ({
   position: absolute;
   z-index: 98;
   border-radius: 50%;
+  filter: drop-shadow(0px 0px 10px #a424243a) contrast(1.3) brightness(1.3);
 `
 function ExplosionAnimation(props) {
   return (
-    <Explosion className="explosion-anim" x={props.x} y={props.y}>
+    <Explosion x={props.x} y={props.y}>
       <img src={props.image} />
     </Explosion>
   )

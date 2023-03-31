@@ -9,6 +9,7 @@ import HomeDisplay from './components/HomeDisplay'
 import EnemyProjectile from './components/EnemyProjectile'
 import ShopDisplay from './components/ShopDisplay'
 import Ore from './components/Ore'
+import PlayerMissile from './components/Missile'
 import {
   calcPlayerMovement,
   checkColision,
@@ -26,6 +27,11 @@ import {
   calcOreMovement,
   checkColisionWithOre,
   setTimeNow,
+  summonMissile,
+  calcMissileMovement,
+  CheckMissileOutOfScreen,
+  CheckShop,
+  buyItem,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
@@ -51,6 +57,7 @@ function App() {
     healthBar,
     enemyProjectiles,
     ores,
+    playerMissiles,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -99,6 +106,10 @@ function App() {
       dispatch(calcOreMovement())
       dispatch(checkColisionWithOre())
       dispatch(setTimeNow())
+      dispatch(summonMissile())
+      dispatch(calcMissileMovement())
+      dispatch(CheckMissileOutOfScreen())
+      dispatch(CheckShop())
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps
@@ -146,6 +157,7 @@ function App() {
     if (e.keyCode === 32) {
       playerFire = false
       tempkeys.space = false
+      dispatch(buyItem('missiles'))
     }
     if (e.keyCode === 80) {
       dispatch(pauseGame())
@@ -293,11 +305,22 @@ function App() {
             shipsDestroyed={player.totalShipsDestroyed}
           />
         )}
+        {playerMissiles.map((missile) => {
+          return (
+            <PlayerMissile
+              key={missile.id}
+              index={missile.id}
+              x={missile.x}
+              y={missile.y}
+              rotation={missile.rotation}
+            />
+          )
+        })}
         {gameSean === 'home' && <HomeDisplay />}
         {gameSean === 'pause' && <PauseDisplay>pause</PauseDisplay>}
         {gameSean === 'shop' && <ShopDisplay money={player.money} />}
 
-        {waveCleared.cleared && (
+        {waveCleared.cleared && gameSean !== 'shop' && (
           <WaveCleardInfo
             wave={wave.number}
             score={waveCleared.score}

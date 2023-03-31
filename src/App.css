@@ -131,39 +131,10 @@
   box-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
   color: aliceblue;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-evenly;
   padding: 15px 15px;
 }
 
-.game .model-info.shop .items {
-  height: 300px;
-  width: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.game .model-info.shop .items .itemwrapper {
-  width: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-.game .model-info.shop .items .item {
-  height: 100px;
-  width: 100px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
-  cursor: pointer;
-}
 .game .model-info .h1 {
   font-weight: 700;
   font-family: Arial, Helvetica, sans-serif;
@@ -245,88 +216,7 @@ span.UI-num {
   bottom: 95px;
   left: 20px;
 }
-img.ship-img {
-  height: 100%;
-  width: 100%;
-}
-img.ship-thruster-img {
-  position: absolute;
-  height: 40px;
-  width: 21px;
-  top: 60px;
-  left: 10px;
-  animation: thrusterAnim 150ms infinite ease-in-out;
-  filter: contrast(1.5) brightness(1.5) saturate(2)
-    drop-shadow(0 0 15px rgba(216, 125, 20, 1));
-}
-.projectile-img {
-  height: 20px;
-  width: 8px;
-  position: absolute;
-  left: 0px;
-  z-index: 98;
-  filter: contrast(1.5) brightness(1.5)
-    drop-shadow(0 0 5px rgba(0, 162, 255, 1));
-  transform: scaleY(1.5);
-  animation: projectileAnim 150ms infinite linear;
-}
-img.enemy-ship-img {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  scale: 120%;
-  z-index: 99;
-}
-img.ship-thruster-img.enemy {
-  position: absolute;
-  height: 70px;
-  width: 40px;
-  rotate: 180deg;
-  top: -10px;
-  left: 0;
-  animation: thrusterAnim 150ms infinite linear;
-  z-index: 97;
-  filter: contrast(1.5) brightness(1.5) saturate(1.5)
-    drop-shadow(0 0 10px rgba(216, 125, 20, 1));
-}
-.enemy-projectile-img {
-  rotate: 180deg;
-  height: 20px;
-  width: 8px;
-  position: absolute;
-  left: 0px;
-  z-index: 98;
-  transform: scaleY(1.5);
-  animation: projectileAnim 150ms infinite linear;
-}
-.enemy-projectile-img.yellow {
-  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
-    drop-shadow(0 0 5px rgba(43, 255, 0, 1));
-}
-.enemy-projectile-img.red {
-  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
-    drop-shadow(0 0 5px rgba(255, 0, 0, 1));
-}
-.enemy-projectile-img.blue {
-  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
-    drop-shadow(0 0 5px rgba(0, 162, 255, 1));
-}
-.enemy-projectile-img.purple {
-  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
-    drop-shadow(0 0 5px rgba(255, 0, 255, 1));
-}
-.enemy-projectile-img.green {
-  filter: contrast(1.5) brightness(1.5) hue-rotate(180deg) saturate(1.5)
-    drop-shadow(0 0 5px rgba(43, 255, 0, 1));
-}
-.game .ore {
-  filter: contrast(1.5) brightness(1.5) saturate(1.5)
-    drop-shadow(0 0 5px rgba(255, 255, 255, 1));
-  animation: oreShine 100ms infinite linear;
-}
-.game .ore img {
-  animation: oreRotate 5000ms infinite linear;
-}
+
 @keyframes thrusterAnim {
   0% {
     scale: 140%;
@@ -386,64 +276,18 @@ img.ship-thruster-img.enemy {
   }
 }
 
-@keyframes projectileAnim {
-  0% {
-    scale: 90%;
-    opacity: 1;
-  }
-  10% {
-    scale: 100%;
-    opacity: 0.7;
-  }
-  20% {
-    scale: 110%;
-    opacity: 1;
-  }
-  30% {
-    scale: 90%;
-    opacity: 0.7;
-  }
-  40% {
-    scale: 100%;
-    opacity: 1;
-  }
-  50% {
-    scale: 110%;
-    opacity: 0.7;
-  }
-  60% {
-    scale: 90%;
-    opacity: 1;
-  }
-  70% {
-    scale: 100%;
-    opacity: 0.7;
-  }
-  80% {
-    scale: 110%;
-    opacity: 1;
-  }
-  90% {
-    scale: 90%;
-    opacity: 0.7;
-  }
-  100% {
-    scale: 100%;
-    opacity: 1;
-  }
-}
 @keyframes oreShine {
   0% {
     filter: contrast(1.5) brightness(1.5) saturate(1.5)
-      drop-shadow(0 0 5px rgba(255, 255, 255, 1));
+      drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
   }
   50% {
     filter: contrast(1.5) brightness(1.5) saturate(1.5)
-      drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+      drop-shadow(0 0 5px rgba(255, 255, 255, 0));
   }
   100% {
     filter: contrast(1.5) brightness(1.5) saturate(1.5)
-      drop-shadow(0 0 5px rgba(255, 255, 255, 1));
+      drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
   }
 }
 @keyframes oreRotate {
@@ -452,5 +296,16 @@ img.ship-thruster-img.enemy {
   }
   100% {
     rotate: 360deg;
+  }
+}
+@keyframes missileTHRUST {
+  0% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
+  100% {
+    transform: scaleY(2);
   }
 }
