@@ -84,7 +84,7 @@
   position: absolute;
   width: 1000px;
   height: 700px;
-  background: rgba(0, 0, 0, 0.436);
+
   z-index: 2;
   top: 20px;
   left: 50%;
@@ -92,6 +92,7 @@
   box-shadow: 0 0 15px aqua;
   overflow: hidden;
 }
+
 .game .model {
   width: 100%;
   height: 100%;
@@ -170,51 +171,6 @@
 .game .wave-cleared-info-content .h span {
   color: aqua;
   text-shadow: 0 0 5px rgba(51, 211, 112, 0.884);
-}
-.game .UI {
-  position: absolute;
-  color: rgba(0, 255, 255, 0.5);
-  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  z-index: 99;
-}
-.game .UI.health {
-  bottom: 20px;
-  left: 20px;
-  width: 327px;
-  height: 40px;
-  display: flex;
-  background: rgba(0, 255, 255, 0.3);
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
-  overflow: hidden;
-  gap: 4px;
-  transform: skewX(-8deg);
-  z-index: 1000;
-}
-
-.game .UI.health .health-rectangle {
-  height: 100%;
-  width: 29px;
-  background: aqua;
-}
-
-.game .UI.wave {
-  bottom: 120px;
-  left: 20px;
-}
-span.UI-num {
-  color: rgb(111, 45, 158);
-  text-shadow: 0 0 5px rgba(111, 45, 158, 0.884);
-}
-.game .UI.score {
-  bottom: 70px;
-  left: 20px;
-}
-.game .UI.money {
-  bottom: 95px;
-  left: 20px;
 }
 
 @keyframes thrusterAnim {
@@ -308,4 +264,17 @@ span.UI-num {
   100% {
     transform: scaleY(2);
   }
+}
+
+img.game-bg {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%);
+  opacity: 0.9;
+  filter: contrast(1) brightness(1) saturate(0.8) hue-rotate(20deg) blur(0px)
+    sepia(0.3);
 }

@@ -7,9 +7,17 @@ function GameOverDisplay(props) {
   return (
     <div className="model">
       <div className="model-info">
-        <h1 className="h">Game Over</h1>
-        <h2 className="h">Ships Destroyed: {props.shipsDestroyed}</h2>
-        <h2 className="h">Score: {props.score}</h2>
+        <h1 className="h1">Game Over</h1>
+        <h2 className="h">
+          <p>Ships Destroyed:</p>{' '}
+          <p className="hammersmithfont wave-info-num">
+            {props.shipsDestroyed}
+          </p>
+        </h2>
+        <h2 className="h">
+          <p>Score:</p>{' '}
+          <p className="hammersmithfont wave-info-num">{props.score}</p>
+        </h2>
         <button
           onClick={() => {
             dispatch(startGame())

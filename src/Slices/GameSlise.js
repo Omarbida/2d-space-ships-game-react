@@ -15,22 +15,22 @@ let oreTypes = [
   },
   {
     name: 'ore2',
-    value: 4,
+    value: 2,
     img: 'ore2',
   },
   {
     name: 'ore3',
-    value: 5,
+    value: 3,
     img: 'ore3',
   },
   {
     name: 'ore4',
-    value: 3,
+    value: 4,
     img: 'ore4',
   },
   {
     name: 'ore5',
-    value: 2,
+    value: 5,
     img: 'ore5',
   },
 ]
@@ -39,20 +39,19 @@ const initialState = {
   gameSean: 'home',
   player: {
     ShipSpeed: 3,
-    shipVelocity: 0.1,
-    fireRate: 300,
+    fireRate: 500,
     x: 475,
     y: 175,
     score: 0,
-    money: 10000,
-    health: 10,
+    money: 0,
+    health: 100,
     waveShipsDestroyed: 0,
     totalShipsDestroyed: 0,
     xVelocity: 0.1,
     yVelocity: 0.1,
     lastProjectile: 0,
     lastMissile: 0,
-    burstFire: 5,
+    burstFire: 1,
   },
   waveCleared: {
     cleared: false,
@@ -69,11 +68,10 @@ const initialState = {
   projectiles: [],
   enemys: [],
   explosions: [],
-  healthBar: [],
   enemyProjectiles: [],
   playerMissiles: [],
-  shopItems: [
-    {
+  shopItems: {
+    missiles: {
       name: 'missiles',
       level: 0,
       cost: 100,
@@ -82,22 +80,100 @@ const initialState = {
       lable: 'missile.png',
       canBuy: false,
       maxed: false,
+      buy: function (state) {
+        if (state.player.money >= this.cost) {
+          if (this.level === 5) {
+            this.maxed = true
+          } else {
+            if (this.level === 0) {
+              state.player.money -= this.cost
+              this.level++
+              this.cost += 50 + (50 * this.level) / 2
+            } else {
+              this.level++
+              this.damage += 2
+              this.fireRate -= 1500
+              state.player.money -= this.cost
+              this.cost = Math.floor(this.cost * 1.5)
+            }
+          }
+        }
+      },
+      checkCanBuy: function (state) {
+        if (state.player.money >= this.cost) {
+          this.canBuy = true
+        } else {
+          this.canBuy = false
+        }
+      },
     },
-    {
+    shipFireRate: {
       name: 'shipFireRate',
       level: 1,
-      cost: 100,
+      cost: 5,
       damage: 1,
-      fireRate: 100,
+      fireRate: 500,
       lable: 'Upgrade Fire Rate.',
       canBuy: false,
       maxed: false,
+      buy: function (state) {
+        if (state.player.money >= this.cost) {
+          if (this.level === 0) {
+            state.player.money -= this.cost
+            this.level++
+            this.cost += 50 + (50 * this.level) / 2
+          } else {
+            this.level++
+            this.fireRate -= 3
+            state.player.money -= this.cost
+            this.cost = Number(this.cost * 1.1).toFixed(2)
+            state.player.fireRate = this.fireRate
+            if (this.fireRate <= 200) {
+              state.player.burstFire += 1
+              this.fireRate = 300
+              state.player.fireRate = 300
+            }
+          }
+        }
+      },
+      checkCanBuy: function (state) {
+        if (state.player.money >= this.cost) {
+          this.canBuy = true
+        } else {
+          this.canBuy = false
+        }
+      },
     },
-  ],
+    ShipRepair: {
+      name: 'ShipRepair',
+      cost: 100,
+      lable: 'Repair Ship.',
+      canBuy: false,
+      buy: function (state) {
+        if (state.player.money >= this.cost) {
+          state.player.money -= this.cost
+          state.player.health = 100
+        }
+      },
+      checkCanBuy: function (state) {
+        if (state.player.money >= this.cost && state.player.health < 100) {
+          this.canBuy = true
+        } else {
+          this.canBuy = false
+        }
+      },
+      calcCost: function (state) {
+        const missingHealth = 100 - state.player.health
+        this.cost = missingHealth * 0.7 + 100
+      },
+    },
+  },
   timeNow: 0,
   damaged: false,
   enemySummoned: 0,
   lastMissileSide: 'left',
+  deltaTime: 0,
+  lastTimeNow: 0,
 }
 const gameSlice = createSlice({
   name: 'game',
@@ -106,6 +182,8 @@ const gameSlice = createSlice({
     setTimeNow: (state) => {
       if (state.gameSean !== 'game') return
       state.timeNow = performance.now()
+      //deltatime
+      state.deltaTime = state.timeNow - state.lastTimeNow
     },
     calcPlayerMovement: (state, { payload }) => {
       if (state.gameSean !== 'game') return
@@ -134,7 +212,6 @@ const gameSlice = createSlice({
     },
     summonProjectile: (state) => {
       if (state.gameSean !== 'game') return
-
       if (state.timeNow - state.player.lastProjectile > state.player.fireRate) {
         for (let i = 0; i < state.player.burstFire; i++) {
           let tempX = 0
@@ -148,10 +225,8 @@ const gameSlice = createSlice({
             } else {
               tempX = state.player.x + 15 + (Math.floor(i / 2) + 1) * 15
             }
-
             tempY = Math.floor(i / 2) * 5 + state.player.y + 40
           }
-
           state.projectiles.push({
             x: tempX,
             y: tempY,
@@ -163,7 +238,7 @@ const gameSlice = createSlice({
     },
     summonMissile: (state) => {
       if (state.gameSean !== 'game') return
-      if (state.shopItems[0].level === 0) return
+      if (state.shopItems.missiles.level === 0) return
       if (state.enemys.length === 0) return
       let targetSide = 0
       let spawnSide = 0
@@ -184,13 +259,13 @@ const gameSlice = createSlice({
       )
       if (
         state.timeNow - state.player.lastMissile >
-        state.shopItems[0].fireRate
+        state.shopItems.missiles.fireRate
       ) {
         state.playerMissiles.push({
           x: state.player.x + spawnSide,
           y: state.player.y,
           id: window.crypto.randomUUID(),
-          damage: state.shopItems[0].damage,
+          damage: state.shopItems.missiles.damage,
           target: {
             x: targetX,
             y: targetY,
@@ -388,6 +463,7 @@ const gameSlice = createSlice({
         }
         const projectile = {
           speed: 3,
+          damage: spawnType * 4,
           type:
             spawnType === 1
               ? 'yellow'
@@ -421,10 +497,10 @@ const gameSlice = createSlice({
           enemVelocityY: 0.2,
           health,
           projectile,
-          damage: 0,
-          fireRate: 2000 - spawnType * 100,
-          speed: spawnType * 0.5,
+          fireRate: 1800 * Math.pow(0.9, spawnType - 1),
+          speed: spawnType * 0.2,
           oreDrop: spawnType,
+          multipleOreChance: calcSpawnRate(7),
         })
         state.enemySummoned++
         lastSpawn = state.timeNow
@@ -491,12 +567,6 @@ const gameSlice = createSlice({
       if (state.player.health <= 0) {
         state.gameRuning = false
         state.gameSean = 'gameover'
-      } else {
-        let tempHealthBar = []
-        for (let i = 0; i < state.player.health; i++) {
-          tempHealthBar.push(i)
-        }
-        state.healthBar = [...tempHealthBar]
       }
     },
     startGame: (state) => {
@@ -531,6 +601,7 @@ const gameSlice = createSlice({
       if (state.enemys.length > 0) {
         state.enemys.forEach((enem) => {
           if (state.projectiles.length > 0) {
+            // enemy X player projectile
             state.projectiles.forEach((proj) => {
               if (
                 ((proj.x >= enem.x + 5 && proj.x <= enem.x + 35) ||
@@ -559,19 +630,24 @@ const gameSlice = createSlice({
                     img: 1,
                     lastImg: 0,
                   })
-                  state.ores.push({
-                    id: window.crypto.randomUUID(),
-                    x: enem.x + 10,
-                    y: enem.y + 10,
-                    oreVelocity: 0.3,
-                    ...oreTypes[enem.oreDrop - 1],
-                  })
+                  for (let i = 0; i < enem.multipleOreChance; i++) {
+                    state.ores.push({
+                      id: window.crypto.randomUUID(),
+                      x: enem.x + 10 + (1 - i) * 10 + (Math.random() * 20 - 10),
+                      y: enem.y + 10 + (1 - i) * 10 + (Math.random() * 20 - 10),
+                      oreVelocity: (i + 1) / 10,
+                      ...oreTypes[enem.oreDrop - 1],
+                    })
+                  }
+
                   state.player.waveShipsDestroyed++
+                  state.player.totalShipsDestroyed++
                   state.player.score += enem.score
                 }
               }
             })
           }
+          // enemy X player Missile
           if (state.playerMissiles.length > 0) {
             state.playerMissiles.forEach((missile) => {
               if (
@@ -605,19 +681,23 @@ const gameSlice = createSlice({
                     img: 1,
                     lastImg: 0,
                   })
-                  state.ores.push({
-                    id: window.crypto.randomUUID(),
-                    x: enem.x + 10,
-                    y: enem.y + 10,
-                    oreVelocity: 0.3,
-                    ...oreTypes[enem.oreDrop - 1],
-                  })
+                  for (let i = 0; i < enem.multipleOreChance; i++) {
+                    state.ores.push({
+                      id: window.crypto.randomUUID(),
+                      x: enem.x + i * 5 + 10,
+                      y: enem.y + i * 5 + 10,
+                      oreVelocity: (i + 1) / 10,
+                      ...oreTypes[enem.oreDrop - 1],
+                    })
+                  }
                   state.player.waveShipsDestroyed++
+                  state.player.totalShipsDestroyed++
                   state.player.score += enem.score
                 }
               }
             })
           }
+          // enemy X player
           if (
             ((enem.x + 5 >= state.player.x + 5 &&
               enem.x + 5 <= state.player.x + 35) ||
@@ -628,7 +708,7 @@ const gameSlice = createSlice({
               (enem.y + 55 >= state.player.y + 5 &&
                 enem.y + 55 <= state.player.y + 55))
           ) {
-            state.player.health -= 1
+            state.player.health -= 10
             state.damaged = 100
             state.enemys = state.enemys.filter((enemy) => {
               if (enemy.id != enem.id) return enemy
@@ -636,12 +716,13 @@ const gameSlice = createSlice({
             state.explosions.push({
               x: enem.x - 20,
               y: enem.y + 20,
-              id: state.explosionIds,
+              id: window.crypto.randomUUID(),
               img: 1,
             })
           }
         })
       }
+      // enemy projectile X player
       if (state.enemyProjectiles.length > 0) {
         state.enemyProjectiles.forEach((proj) => {
           if (
@@ -652,7 +733,7 @@ const gameSlice = createSlice({
               (proj.y + 10 >= state.player.y + 5 &&
                 proj.y + 10 <= state.player.y + 55))
           ) {
-            state.player.health -= 1
+            state.player.health -= proj.damage
             state.damaged = 100
             state.enemyProjectiles = state.enemyProjectiles.filter(
               (projectile) => {
@@ -745,39 +826,14 @@ const gameSlice = createSlice({
     },
     CheckShop: (state) => {
       if (state.gameSean !== 'shop') return
-      state.shopItems.forEach((item) => {
-        if (state.player.money >= item.cost) {
-          item.canBuy = true
-        } else {
-          item.canBuy = false
-        }
-      })
+      state.shopItems.missiles.checkCanBuy(state)
+      state.shopItems.shipFireRate.checkCanBuy(state)
+      state.shopItems.ShipRepair.checkCanBuy(state)
+      state.shopItems.ShipRepair.calcCost(state)
     },
     buyItem: (state, { payload }) => {
       if (state.gameSean !== 'shop') return
-      state.shopItems.forEach((item) => {
-        if (item.name === payload) {
-          if (item.name === 'missiles') {
-            if (state.player.money >= item.cost) {
-              if (item.level === 5) {
-                item.maxed = true
-              } else {
-                if (item.level === 0) {
-                  state.player.money -= item.cost
-                  item.level++
-                  item.cost += 50 + (50 * item.level) / 2
-                } else {
-                  item.level++
-                  item.damage += 2
-                  item.fireRate -= 1500
-                  state.player.money -= item.cost
-                  item.cost = Math.floor(item.cost * 1.5)
-                }
-              }
-            }
-          }
-        }
-      })
+      state.shopItems[payload].buy(state)
     },
   },
 })

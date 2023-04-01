@@ -1,4 +1,8 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import {
+  combineReducers,
+  configureStore,
+  getDefaultMiddleware,
+} from '@reduxjs/toolkit'
 import { gameReducer } from '../Slices/GameSlise'
 
 const combinedReducers = combineReducers({
@@ -7,4 +11,8 @@ const combinedReducers = combineReducers({
 
 export const store = configureStore({
   reducer: combinedReducers,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 })

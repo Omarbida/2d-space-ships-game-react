@@ -12,6 +12,15 @@ const EnemyHelthBar = styled.div`
   background: #15c72441;
   box-shadow: 0 0 5px 1px #15c724;
 `
+const EnemyHelthBarFill = styled.div.attrs((props) => ({
+  style: {
+    width: props.width + '%',
+  },
+}))`
+  height: 100%;
+  border-radius: 5px;
+  background: #15c724;
+`
 const EnemyShipImg = styled.img`
   position: absolute;
   height: 100%;
@@ -42,14 +51,7 @@ const EnemyShip = (props) => {
 
       {props.health < 100 && (
         <EnemyHelthBar>
-          <div
-            style={{
-              height: '100%',
-              width: `${props.health}%`,
-              backgroundColor: '#15c724',
-              borderRadius: '5px',
-            }}
-          ></div>
+          <EnemyHelthBarFill width={props.health} />
         </EnemyHelthBar>
       )}
     </Ship>

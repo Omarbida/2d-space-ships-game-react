@@ -10,6 +10,13 @@ import EnemyProjectile from './components/EnemyProjectile'
 import ShopDisplay from './components/ShopDisplay'
 import Ore from './components/Ore'
 import PlayerMissile from './components/Missile'
+import { MoneyIconImg } from './components/ShopDisplay'
+import {
+  Healthbar,
+  HealthBarFill,
+  UInumSpan,
+  UIparagraph,
+} from './components/UI'
 import {
   calcPlayerMovement,
   checkColision,
@@ -59,6 +66,8 @@ function App() {
     ores,
     playerMissiles,
     shopItems,
+    bgPositionX,
+    bgPositionY,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -221,25 +230,24 @@ function App() {
         </div>
       </div>
       <div className="game">
+        <img className="game-bg" src="bg-3.jpg" />
         {gameSean !== 'home' && (
           <>
-            <div className="UI score">
-              Score:{' '}
-              <span className="hammersmithfont UI-num">{player.score}</span>
-            </div>
-            <div className="UI wave">
-              Wave:{' '}
-              <span className="hammersmithfont UI-num">{wave.number}</span>
-            </div>
-            <div className="UI money">
-              Neptunium:{' '}
-              <span className="hammersmithfont UI-num">{player.money}</span>
-            </div>
-            <div className="UI health">
-              {healthBar.map((bar) => {
-                return <div key={bar} className="health-rectangle"></div>
-              })}
-            </div>
+            <UIparagraph bottom={70} left={20}>
+              Score: <UInumSpan>{player.score}</UInumSpan>
+            </UIparagraph>
+            <UIparagraph bottom={120} left={20}>
+              Wave: <UInumSpan>{wave.number}</UInumSpan>
+            </UIparagraph>
+            <UIparagraph bottom={95} left={20}>
+              Niptunium:{' '}
+              <UInumSpan>
+                {player.money.toFixed(2)} <MoneyIconImg src="ores/ore5.png" />
+              </UInumSpan>
+            </UIparagraph>
+            <Healthbar>
+              <HealthBarFill width={player.health} />
+            </Healthbar>
           </>
         )}
         {gameSean !== 'home' && <PlayerShip x={player.x} y={player.y} />}
@@ -298,12 +306,7 @@ function App() {
             />
           )
         })}
-        {gameSean === 'gameover' && (
-          <GameOverDisplay
-            score={player.score}
-            shipsDestroyed={player.totalShipsDestroyed}
-          />
-        )}
+
         {playerMissiles.map((missile) => {
           return (
             <PlayerMissile
@@ -320,7 +323,12 @@ function App() {
         {gameSean === 'shop' && (
           <ShopDisplay money={player.money} shopItems={shopItems} />
         )}
-
+        {gameSean === 'gameover' && (
+          <GameOverDisplay
+            score={player.score}
+            shipsDestroyed={player.totalShipsDestroyed}
+          />
+        )}
         {waveCleared.cleared && gameSean !== 'shop' && (
           <WaveCleardInfo
             wave={wave.number}
