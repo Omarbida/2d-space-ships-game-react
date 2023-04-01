@@ -16,6 +16,8 @@ import {
   HealthBarFill,
   UInumSpan,
   UIparagraph,
+  UIshieldCD,
+  UIshieldCDfill,
 } from './components/UI'
 import {
   calcPlayerMovement,
@@ -43,6 +45,7 @@ import {
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
 import GameOverDisplay from './components/GameOverDisplay'
+import Shield from './components/Shield'
 
 let moveup = false
 let movedown = false
@@ -61,13 +64,10 @@ function App() {
     waveCleared,
     gameSean,
     damaged,
-    healthBar,
     enemyProjectiles,
     ores,
     playerMissiles,
     shopItems,
-    bgPositionX,
-    bgPositionY,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -167,7 +167,6 @@ function App() {
     if (e.keyCode === 32) {
       playerFire = false
       tempkeys.space = false
-      dispatch(buyItem('missiles'))
     }
     if (e.keyCode === 80) {
       dispatch(pauseGame())
@@ -229,6 +228,7 @@ function App() {
           </span>
         </div>
       </div>
+
       <div className="game">
         <img className="game-bg" src="bg-3.jpg" />
         {gameSean !== 'home' && (
@@ -247,10 +247,28 @@ function App() {
             </UIparagraph>
             <Healthbar>
               <HealthBarFill width={player.health} />
+              {player.shieldActive != 0 && (
+                <UIshieldCD>
+                  <UIshieldCDfill width={player.shieldActive * 10} />
+                </UIshieldCD>
+              )}
             </Healthbar>
           </>
         )}
-        {gameSean !== 'home' && <PlayerShip x={player.x} y={player.y} />}
+        {gameSean !== 'home' && (
+          <PlayerShip
+            x={player.x}
+            y={player.y}
+            missileLancher={shopItems.missiles.level !== 0}
+          />
+        )}
+        {gameSean !== 'home' && player.shieldActive !== 0 && (
+          <Shield
+            x={player.x - 25}
+            y={player.y - 15}
+            timer={player.shieldActive}
+          />
+        )}
         {projectiles.map((projectile) => {
           return (
             <PlayerProjectile

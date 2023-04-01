@@ -3,20 +3,16 @@ import styled from 'styled-components'
 export const Healthbar = styled.div`
   position: relative;
   position: absolute;
-  bottom: 20px;
+  bottom: 30px;
   left: 20px;
-  width: 327px;
-  height: 40px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 68, 0, 0.5) 0%,
-    rgba(255, 174, 0, 0.5) 0%,
-    rgba(50, 127, 160, 0.5) 80%
-  );
+  width: 250px;
+  height: 30px;
   background: rgba(50, 127, 160, 0.5);
   box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
-  transform: skewX(-8deg);
-  z-index: 1000;
+  transform: skewX(-10deg);
+  border-radius: 0 10px 10px 0;
+  overflow: hidden;
+  z-index: 98;
 `
 
 export const HealthBarFill = styled.div.attrs((props) => ({
@@ -72,4 +68,25 @@ export const UInumSpan = styled.span`
   font-size: 1.5rem;
   font-weight: 700;
   z-index: 99;
+`
+export const UIshieldCD = styled(Healthbar)`
+  bottom: 0px;
+  left: -30px;
+  width: 300px;
+  height: 10px;
+  background: rgba(96, 50, 160, 0.5);
+  box-shadow: 0 0 5px rgba(96, 50, 160, 0.5);
+  border-radius: 0;
+`
+export const UIshieldCDfill = styled.div.attrs((props) => ({
+  style: {
+    width: props.width + '%',
+  },
+}))`
+  transition: width 1.2s linear;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: inherit;
+  background: rgb(67, 25, 126);
 `

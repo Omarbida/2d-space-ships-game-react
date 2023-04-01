@@ -1,7 +1,8 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
-import { buyItem } from '../Slices/GameSlise'
+import { buyItem, changePage } from '../Slices/GameSlise'
+import { ChevronsLeft, ChevronsRight } from 'react-feather'
 
 const Span = styled.span`
   display: flex;
@@ -14,8 +15,37 @@ const Span = styled.span`
   padding: 5px;
   font-size: 25px;
 `
+export const Header = styled.div`
+  font-weight: 700;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: ${(props) => props.fnZ + 'px'};
+  width: 100%;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
+  border-top: 1px solid rgba(0, 255, 255, 0.356);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.356);
+`
+const ShopContainer = styled.div`
+  flex-direction: column;
+  align-items: center;
+  width: 800px;
+  height: 600px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  gap: 20px;
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
+  color: aliceblue;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 15px 15px;
+`
 const ItemsContainer = styled.div`
-  min-height: 300px;
+  height: 350px;
   width: 100%;
   display: flex;
   justify-content: space-evenly;
@@ -53,6 +83,10 @@ const Item = styled.div.attrs((props) => ({
   box-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
   cursor: pointer;
   color: inherit;
+  &:hover {
+    scale: 1.1;
+  }
+  transition: all 0.2s ease-in-out;
 `
 const ItemInfo = styled.div`
   width: 100%;
@@ -76,14 +110,16 @@ const Icon = styled.div`
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  padding: 5px;
 `
-const MissileImg = styled.img`
+const ItemImg = styled.img`
   height: 100%;
   width: 100%;
 `
 const InfoPara = styled.p.attrs((props) => ({
   style: {
     textAlign: props.center,
+    fontSize: props.fnZ,
   },
 }))`
   width: 100%;
@@ -97,143 +133,227 @@ const InfoPara = styled.p.attrs((props) => ({
   margin: 0;
   padding: 5px;
 `
-
+const ChangePage = styled.button`
+  height: 50px;
+  width: 50px;
+  filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5));
+  border: none;
+  background: transparent;
+  transition: all 0.2s ease-in-out;
+  &:hover {
+    cursor: pointer;
+    scale: 1.3;
+  }
+`
+const TempWrapper = styled.div`
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`
 function ShopDisplay(props) {
   const { shopItems } = useSelector((state) => state.game)
   const dispatch = useDispatch()
   return (
     <div className="model">
-      <div className="model-info shop">
-        <h1 className="h1">
-          <span>Shop</span>
-          <Span className="shop hammersmithfont">
-            <MoneyIconImg src="ores/ore5.png" alt="" />
-            {props.money.toFixed(2)}
-          </Span>
-        </h1>
+      <ShopContainer>
+        <Header display={'flex'} alIt={'center'} jusCo={'center'}>
+          <ChangePage
+            onClick={() => {
+              if (shopItems.page === 1) return
+              dispatch(changePage(-1))
+            }}
+            disabled={shopItems.page === 1}
+          >
+            <ChevronsLeft size={50} color="aqua" />
+          </ChangePage>
+          <TempWrapper>
+            <InfoPara center={'center'} fnZ={30}>
+              Shop
+            </InfoPara>
+            <Span className="shop hammersmithfont">
+              <MoneyIconImg src="ores/ore5.png" alt="" />
+              {props.money.toFixed(2)}
+            </Span>
+          </TempWrapper>
+          <ChangePage
+            onClick={() => {
+              if (shopItems.maxPages === shopItems.page) return
+              dispatch(changePage(1))
+            }}
+            disabled={shopItems.maxPages === shopItems.page}
+          >
+            <ChevronsRight size={50} color="aqua" />
+          </ChangePage>
+        </Header>
         <ItemsContainer>
-          {shopItems.missiles && (
-            <ItemWrapper
-              disabled={shopItems.missiles.canBuy}
-              order={2}
-              key={shopItems.missiles.name}
-            >
-              <InfoPara center={'center'}>{shopItems.missiles.name}</InfoPara>
-              <Item
-                onClick={() => {
-                  if (shopItems.missiles.canBuy) {
-                    dispatch(buyItem(shopItems.missiles.name))
-                  }
-                }}
-                disabled={shopItems.missiles.canBuy}
-              >
-                <Icon>
-                  <MissileImg src={shopItems.missiles.lable} />
-                </Icon>
-              </Item>
-              <ItemInfo>
-                <InfoPara>
-                  Level :{' '}
-                  <span>
-                    {shopItems.missiles.level === 5
-                      ? 'max'
-                      : shopItems.missiles.level}
-                  </span>
-                </InfoPara>
-
-                <InfoPara>
-                  Damage : <span>{shopItems.missiles.damage}</span>
-                </InfoPara>
-                <InfoPara>
-                  Rate :{' '}
-                  <span>
-                    {(1 / (shopItems.missiles.fireRate / 1000)).toFixed(2)} M/s
-                  </span>
-                </InfoPara>
-                {shopItems.missiles.level !== 5 && (
+          {shopItems.page === 1 && (
+            <>
+              {shopItems.missiles && (
+                <ItemWrapper
+                  disabled={shopItems.missiles.canBuy}
+                  order={2}
+                  key={shopItems.missiles.name}
+                >
                   <InfoPara center={'center'}>
-                    <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
-                    {shopItems.missiles.cost}
+                    {shopItems.missiles.name}
                   </InfoPara>
-                )}
-              </ItemInfo>
-            </ItemWrapper>
-          )}
-          {shopItems.shipFireRate && (
-            <ItemWrapper
-              disabled={shopItems.shipFireRate.canBuy}
-              order={0}
-              key={shopItems.shipFireRate.name}
-            >
-              <InfoPara center={'center'}>
-                {shopItems.shipFireRate.name}
-              </InfoPara>
-              <Item
-                onClick={() => {
-                  if (shopItems.shipFireRate.canBuy) {
-                    dispatch(buyItem(shopItems.shipFireRate.name))
-                  }
-                }}
-              >
-                <InfoPara center={'center'}>
-                  {shopItems.shipFireRate.lable}
-                </InfoPara>
-              </Item>
-              <ItemInfo>
-                {shopItems.shipFireRate.level !== 0 && (
-                  <InfoPara>
-                    Level : <span>{shopItems.shipFireRate.level}</span>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.missiles.canBuy) {
+                        dispatch(buyItem(shopItems.missiles.name))
+                      }
+                    }}
+                    disabled={shopItems.missiles.canBuy}
+                  >
+                    <Icon>
+                      <ItemImg src={shopItems.missiles.lable} />
+                    </Icon>
+                  </Item>
+                  <ItemInfo>
+                    <InfoPara>
+                      Level :{' '}
+                      <span>
+                        {shopItems.missiles.level === 5
+                          ? 'max'
+                          : shopItems.missiles.level}
+                      </span>
+                    </InfoPara>
+
+                    <InfoPara>
+                      Damage : <span>{shopItems.missiles.damage}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Rate :{' '}
+                      <span>
+                        {(1 / (shopItems.missiles.fireRate / 1000)).toFixed(2)}{' '}
+                        M/s
+                      </span>
+                    </InfoPara>
+                    {shopItems.missiles.level !== 5 && (
+                      <InfoPara center={'center'}>
+                        <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                        {shopItems.missiles.cost}
+                      </InfoPara>
+                    )}
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+              {shopItems.shipFireRate && (
+                <ItemWrapper
+                  disabled={shopItems.shipFireRate.canBuy}
+                  order={0}
+                  key={shopItems.shipFireRate.name}
+                >
+                  <InfoPara center={'center'}>
+                    {shopItems.shipFireRate.name}
                   </InfoPara>
-                )}
-                <InfoPara>
-                  Damage : <span>{shopItems.shipFireRate.damage}</span>
-                </InfoPara>
-                <InfoPara>
-                  Rate :{' '}
-                  <span>
-                    {(1 / (shopItems.shipFireRate.fireRate / 1000)).toFixed(2)}{' '}
-                    P/s
-                  </span>
-                </InfoPara>
-                <InfoPara center={'center'}>
-                  <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
-                  {shopItems.shipFireRate.cost}
-                </InfoPara>
-              </ItemInfo>
-            </ItemWrapper>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.shipFireRate.canBuy) {
+                        dispatch(buyItem(shopItems.shipFireRate.name))
+                      }
+                    }}
+                  >
+                    <InfoPara center={'center'}>
+                      {shopItems.shipFireRate.lable}
+                    </InfoPara>
+                  </Item>
+                  <ItemInfo>
+                    {shopItems.shipFireRate.level !== 0 && (
+                      <InfoPara>
+                        Level : <span>{shopItems.shipFireRate.level}</span>
+                      </InfoPara>
+                    )}
+                    <InfoPara>
+                      Damage : <span>{shopItems.shipFireRate.damage}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Rate :{' '}
+                      <span>
+                        {(1 / (shopItems.shipFireRate.fireRate / 1000)).toFixed(
+                          2,
+                        )}{' '}
+                        P/s
+                      </span>
+                    </InfoPara>
+                    <InfoPara center={'center'}>
+                      <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                      {shopItems.shipFireRate.cost}
+                    </InfoPara>
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+              {shopItems.ShipRepair && (
+                <ItemWrapper
+                  disabled={shopItems.ShipRepair.canBuy}
+                  order={1}
+                  key={shopItems.ShipRepair.name}
+                >
+                  <InfoPara center={'center'}>
+                    {shopItems.ShipRepair.name}
+                  </InfoPara>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.ShipRepair.canBuy) {
+                        dispatch(buyItem(shopItems.ShipRepair.name))
+                      }
+                    }}
+                    disabled={shopItems.ShipRepair.canBuy}
+                  >
+                    <Icon>
+                      <ItemImg src={shopItems.ShipRepair.lable} />
+                    </Icon>
+                  </Item>
+                  <ItemInfo>
+                    <InfoPara center={'center'}>
+                      Repair Ship with niptunium
+                    </InfoPara>
+                    <InfoPara center={'center'}>
+                      <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                      {shopItems.ShipRepair.cost}
+                    </InfoPara>
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+            </>
           )}
-          {shopItems.ShipRepair && (
-            <ItemWrapper
-              disabled={shopItems.ShipRepair.canBuy}
-              order={1}
-              key={shopItems.ShipRepair.name}
-            >
-              <InfoPara center={'center'}>{shopItems.ShipRepair.name}</InfoPara>
-              <Item
-                onClick={() => {
-                  if (shopItems.ShipRepair.canBuy) {
-                    dispatch(buyItem(shopItems.ShipRepair.name))
-                  }
-                }}
-                disabled={shopItems.ShipRepair.canBuy}
-              >
-                <InfoPara center={'center'}>
-                  {shopItems.ShipRepair.lable}
-                </InfoPara>
-              </Item>
-              <ItemInfo>
-                <InfoPara center={'center'}>
-                  Repair Ship with niptunium
-                </InfoPara>
-                <InfoPara center={'center'}>
-                  <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
-                  {shopItems.ShipRepair.cost}
-                </InfoPara>
-              </ItemInfo>
-            </ItemWrapper>
+          {shopItems.page === 2 && (
+            <>
+              {shopItems.shield && (
+                <ItemWrapper
+                  disabled={shopItems.shield.canBuy}
+                  order={3}
+                  key={shopItems.shield.name}
+                >
+                  <InfoPara center={'center'}>energy shield</InfoPara>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.shield.canBuy) {
+                        dispatch(buyItem(shopItems.shield.name))
+                      }
+                    }}
+                    disabled={shopItems.shield.canBuy}
+                  >
+                    <Icon>
+                      <ItemImg src={shopItems.shield.lable} alt="" />
+                    </Icon>
+                  </Item>
+                  <ItemInfo>
+                    <InfoPara>
+                      Duration : <span>{shopItems.shield.duration}s</span>
+                    </InfoPara>
+                    <InfoPara center={'center'}>
+                      <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                      {shopItems.shield.cost}
+                    </InfoPara>
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+            </>
           )}
         </ItemsContainer>
-      </div>
+      </ShopContainer>
     </div>
   )
 }

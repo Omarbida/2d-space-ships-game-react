@@ -1,13 +1,14 @@
 import { useDispatch } from 'react-redux'
 import { startGame } from '../Slices/GameSlise'
-
+import { Header } from './ShopDisplay'
 function HomeDisplay(props) {
   const dispatch = useDispatch()
   return (
     <div className="model">
       <div className="model-info">
-        <h1 className="h1">Nebula Warfare</h1>
+        <Header fnZ={30}>Nebula Warfare</Header>
         <button
+          className="normal-btn"
           onClick={() => {
             dispatch(startGame())
           }}

@@ -1,8 +1,10 @@
+import { Header } from './ShopDisplay'
+
 function WaveCleardInfo(props) {
   return (
     <div className="model">
       <div className="model-info">
-        <h1 className="h1">Wave Cleared</h1>
+        <Header fnZ={30}>Wave Cleared</Header>
         <h2 className="h">
           <p>Ships Destroyed {props.shipsDestroyed} :</p>{' '}
           <p className="hammersmithfont wave-info-num">{props.score}</p>
@@ -21,7 +23,7 @@ function WaveCleardInfo(props) {
           <p>Total points:</p>{' '}
           <p className="hammersmithfont wave-info-num">{props.total}</p>
         </h2>
-        <h2 className="h1">Next Wave in : {props.time}</h2>
+        <Header fnZ={30}>Next Wave in : {props.time}</Header>
       </div>
     </div>
   )
