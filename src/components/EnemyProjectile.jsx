@@ -19,7 +19,7 @@ const EnemyProjImg = styled.img.attrs((props) => ({
 function EnemyProjectile(props) {
   return (
     <Projectile x={props.x} y={props.y}>
-      <EnemyProjImg type={props.type} src="projectile.png" alt="" />
+      <EnemyProjImg type={props.type} src="projectileSMALl.png" alt="" />
     </Projectile>
   )
 }

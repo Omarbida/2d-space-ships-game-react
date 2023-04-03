@@ -3,7 +3,8 @@ import { createSlice } from '@reduxjs/toolkit'
 const projectileSpeed = 8
 const enemySpawnRate = 1000 //ms
 const enemysGoToRate = 3000 //ms
-const enemyBaseFireRate = 2000 //ms
+const enemyBaseFireRate = 2500 //ms
+const enemyHealthGrouth = 1.1
 let lastSpawn = 0
 let timer = 1000
 let lastTimer1 = 0
@@ -101,7 +102,7 @@ const initialState = {
       cost: 5,
       damage: 1,
       fireRate: 500,
-      lable: '+1% Fire Rate',
+      lable: '+2% Fire Rate',
       canBuy: false,
       maxed: false,
       buy: function (state) {
@@ -112,11 +113,11 @@ const initialState = {
             this.cost += 50 + this.cost * 0.07
           } else {
             this.level++
-            this.fireRate = this.fireRate * 0.99
+            this.fireRate = this.fireRate * 0.98
             state.player.money -= this.cost
             this.cost = Number(this.cost * 1.05).toFixed(2)
             if (this.level < 50) {
-              state.player.fireRate = state.player.fireRate * 0.99
+              state.player.fireRate = state.player.fireRate * 0.98
             }
             if (this.level % 50 === 0) {
               state.player.burstFire += 2
@@ -189,16 +190,17 @@ const initialState = {
   player: {
     ShipSpeed: 3,
     fireRate: 500,
+    burstFire: 3,
     x: 475,
     y: 175,
     score: 0,
-    money: 0,
+    money: 10000,
     health: 100,
     waveShipsDestroyed: 0,
     totalShipsDestroyed: 0,
     lastProjectile: 0,
     lastMissile: 0,
-    burstFire: 3,
+
     shieldActive: 0,
     maxSpeed: 10, // maximum speed the player can reach
     acceleration: 0.1, // rate at which the player accelerates
@@ -209,6 +211,7 @@ const initialState = {
     ay: 0, // current vertical acceleration
     deceleration: 1.5, // rate at which the player slows down when not accelerating
   },
+  lastTimeNow: 0,
 }
 const gameSlice = createSlice({
   name: 'game',
@@ -219,6 +222,10 @@ const gameSlice = createSlice({
       state.timeNow = performance.now()
       //deltatime
       state.deltaTime = state.timeNow - state.lastTimeNow
+    },
+    calcDeltaTime: (state) => {
+      if (state.gameSean !== 'game') return
+      state.deltaTime = (state.timeNow - state.lastTimeNow) / 1000
     },
     setPlayerForces: (state, { payload }) => {
       if (state.gameSean !== 'game') return
@@ -290,7 +297,6 @@ const gameSlice = createSlice({
         player.vy = 0
       }
     },
-
     oneSecondTimer: (state) => {
       if (state.gameSean !== 'game') return
       const timeNow = state.timeNow
@@ -302,6 +308,71 @@ const gameSlice = createSlice({
         if (state.player.shieldActive !== 0) {
           state.player.shieldActive--
         }
+      }
+    },
+    summonEnemys: (state) => {
+      if (state.gameSean !== 'game') return
+      const randomX = Math.floor(Math.random() * 950)
+      const spawnType = calcSpawnRate(state.wave.number)
+      if (
+        state.timeNow - lastSpawn > enemySpawnRate &&
+        state.enemySummoned < state.wave.enemys &&
+        state.enemys.length < 7
+      ) {
+        const health = {
+          max:
+            spawnType +
+            spawnType * enemyHealthGrouth * (state.wave.number - 1) * 0.1,
+          current:
+            spawnType +
+            spawnType * enemyHealthGrouth * (state.wave.number - 1) * 0.1,
+          percentage: 100,
+        }
+        const projectile = {
+          speed: 3,
+          damage: spawnType * 4,
+          type:
+            spawnType === 1
+              ? 'yellow'
+              : spawnType === 2
+              ? 'red'
+              : spawnType === 3
+              ? 'blue'
+              : spawnType === 4
+              ? 'green'
+              : 'purple',
+        }
+        state.enemys.push({
+          name: `enemy${state.enemySummoned}`,
+          x: randomX,
+          y: 650,
+          with: 40,
+          height: 60,
+          score: spawnType * 5,
+          ship: spawnType,
+          goTo: {
+            x: goToRandomPosition({
+              x: randomX,
+              y: 650,
+            }).x,
+            y: goToRandomPosition({ x: randomX, y: 650 }).y,
+          },
+          lastGoToX: 0,
+          lastGoToY: 0,
+          goToRate: enemysGoToRate,
+          id: window.crypto.randomUUID(),
+          lastFire: 0,
+          enemVelocityX: 0.2,
+          enemVelocityY: 0.2,
+          health,
+          projectile,
+          fireRate: enemyBaseFireRate * Math.pow(0.9, spawnType - 1),
+          speed: spawnType * 0.2,
+          oreDrop: spawnType,
+          multipleOreChance: calcSpawnRate(7),
+        })
+        state.enemySummoned++
+        lastSpawn = state.timeNow
       }
     },
     summonProjectile: (state) => {
@@ -325,6 +396,9 @@ const gameSlice = createSlice({
           state.projectiles.push({
             x: tempX,
             y: tempY,
+            with: 8,
+            height: 20,
+            img: 'projectileSMALl.png',
             id: window.crypto.randomUUID(),
           })
         }
@@ -537,67 +611,7 @@ const gameSlice = createSlice({
         })
       }
     },
-    summonEnemys: (state) => {
-      if (state.gameSean !== 'game') return
-      const randomX = Math.floor(Math.random() * 950)
-      const spawnType = calcSpawnRate(state.wave.number)
-      if (
-        state.timeNow - lastSpawn > enemySpawnRate &&
-        state.enemySummoned < state.wave.enemys &&
-        state.enemys.length < 7
-      ) {
-        const health = {
-          max:
-            spawnType + Math.floor(state.wave.number / 5) * (spawnType * 0.1),
-          current:
-            spawnType + Math.floor(state.wave.number / 5) * (spawnType * 0.1),
-          percentage: 100,
-        }
-        const projectile = {
-          speed: 3,
-          damage: spawnType * 4,
-          type:
-            spawnType === 1
-              ? 'yellow'
-              : spawnType === 2
-              ? 'red'
-              : spawnType === 3
-              ? 'blue'
-              : spawnType === 4
-              ? 'green'
-              : 'purple',
-        }
-        state.enemys.push({
-          name: `enemy${state.enemySummoned}`,
-          x: randomX,
-          y: 650,
-          score: spawnType * 5,
-          ship: spawnType,
-          goTo: {
-            x: goToRandomPosition({
-              x: randomX,
-              y: 650,
-            }).x,
-            y: goToRandomPosition({ x: randomX, y: 650 }).y,
-          },
-          lastGoToX: 0,
-          lastGoToY: 0,
-          goToRate: enemysGoToRate,
-          id: window.crypto.randomUUID(),
-          lastFire: 0,
-          enemVelocityX: 0.2,
-          enemVelocityY: 0.2,
-          health,
-          projectile,
-          fireRate: enemyBaseFireRate * Math.pow(0.9, spawnType - 1),
-          speed: spawnType * 0.2,
-          oreDrop: spawnType,
-          multipleOreChance: calcSpawnRate(7),
-        })
-        state.enemySummoned++
-        lastSpawn = state.timeNow
-      }
-    },
+
     calcEnemyMovement: (state) => {
       if (state.gameSean !== 'game') return
       const timeNow = state.timeNow
@@ -646,6 +660,8 @@ const gameSlice = createSlice({
             state.enemyProjectiles.push({
               x: enem.x + 15,
               y: enem.y - 5,
+              with: 8,
+              height: 20,
               id: window.crypto.randomUUID(),
               ...enem.projectile,
             })
@@ -857,6 +873,7 @@ const gameSlice = createSlice({
         })
       }
     },
+
     checkColisionWithOre: (state) => {
       if (state.gameSean !== 'game') return
       if (state.ores.length > 0) {
@@ -881,13 +898,9 @@ const gameSlice = createSlice({
     },
     nextImg: (state) => {
       if (state.explosions.length > 0) {
-        state.explosions.forEach((explosion) => {
+        state.explosions = state.explosions.filter((explosion) => {
           explosion.img += 1
-          if (explosion.img > 25) {
-            state.explosions = state.explosions.filter((explosion) => {
-              if (explosion.id != explosion.id) return explosion
-            })
-          }
+          return explosion.img <= 25
         })
       }
       if (state.damaged <= 0) {
@@ -991,6 +1004,7 @@ export const {
   buyItem,
   changePage,
   calcPlayerPosition,
+  calcDeltaTime,
 } = gameSlice.actions
 export const gameReducer = gameSlice.reducer
 

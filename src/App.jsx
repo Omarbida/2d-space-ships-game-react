@@ -41,6 +41,7 @@ import {
   CheckMissileOutOfScreen,
   CheckShop,
   calcPlayerPosition,
+  calcDeltaTime,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
@@ -55,6 +56,7 @@ let playerFire = false
 
 function App() {
   const dispatch = useDispatch()
+
   const {
     player,
     projectiles,
@@ -78,6 +80,8 @@ function App() {
   })
   useEffect(() => {
     const update = setInterval(() => {
+      dispatch(setTimeNow())
+      dispatch(calcDeltaTime())
       if (moveup) {
         dispatch(
           setPlayerForces({ exis: 'vertical', direction: +1, type: 'move' }),
@@ -133,7 +137,7 @@ function App() {
       dispatch(checkProjectileOutOfScreen())
       dispatch(calcOreMovement())
       dispatch(checkColisionWithOre())
-      dispatch(setTimeNow())
+
       dispatch(summonMissile())
       dispatch(calcMissileMovement())
       dispatch(CheckMissileOutOfScreen())
@@ -298,6 +302,7 @@ function App() {
             />
           )
         })}
+
         {enemyProjectiles.map((projectile) => {
           return (
             <EnemyProjectile

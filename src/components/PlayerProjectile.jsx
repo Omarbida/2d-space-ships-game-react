@@ -23,7 +23,11 @@ const PlayerProjImg = styled.img`
 function PlayerProjectile(props) {
   return (
     <Projectile x={props.x} y={props.y}>
-      <PlayerProjImg className="projectile-img" src="projectile.png" alt="" />
+      <PlayerProjImg
+        className="projectile-img"
+        src="projectileSMALl.png"
+        alt=""
+      />
     </Projectile>
   )
 }
