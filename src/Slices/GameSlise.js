@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const projectileSpeed = 8
-const enemySpawnRate = 1000 //ms
+const enemySpawnRate = 700 //ms
 const enemysGoToRate = 3000 //ms
 const enemyBaseFireRate = 2500 //ms
 const enemyHealthGrouth = 1.1
@@ -110,12 +110,12 @@ const initialState = {
           if (this.level === 0) {
             state.player.money -= this.cost
             this.level++
-            this.cost += 50 + this.cost * 0.07
+            this.cost += this.cost * 0.01
           } else {
             this.level++
             this.fireRate = this.fireRate * 0.98
             state.player.money -= this.cost
-            this.cost = Number(this.cost * 1.05).toFixed(2)
+            this.cost = Number(this.cost * 1.02).toFixed(2)
             if (this.level < 50) {
               state.player.fireRate = state.player.fireRate * 0.98
             }
@@ -194,7 +194,7 @@ const initialState = {
     x: 475,
     y: 175,
     score: 0,
-    money: 10000,
+    money: 0,
     health: 100,
     waveShipsDestroyed: 0,
     totalShipsDestroyed: 0,
@@ -329,7 +329,7 @@ const gameSlice = createSlice({
           percentage: 100,
         }
         const projectile = {
-          speed: 3,
+          speed: 3 + spawnType * 0.5,
           damage: spawnType * 4,
           type:
             spawnType === 1

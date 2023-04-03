@@ -36,13 +36,13 @@ const MissileLancher = styled.img`
   top: -10px;
   left: -20px;
   transform: scale(1.3);
-  /* filter: contrast(0.5) brightness(1.5) saturate(1.5); */
+  filter: drop-shadow(0px 0px 10px #a424243a) contrast(1.3) brightness(1.3)
+    saturate(0.5);
 `
 
 function PlayerShip(props) {
   return (
     <Ship x={props.x} y={props.y}>
-      {/*<ShipImg src="ship.png" />*/}
       <ShipImg src={'shipwithCanon.png'} />
       <ThrusterImg src="thrusters.png" />
       {props.missileLancher && <MissileLancher src="missileLancher.png" />}
