@@ -20,7 +20,7 @@ import {
   UIshieldCDfill,
 } from './components/UI'
 import {
-  calcPlayerMovement,
+  setPlayerForces,
   checkColision,
   checkGameOver,
   checkWaveCleared,
@@ -40,7 +40,7 @@ import {
   calcMissileMovement,
   CheckMissileOutOfScreen,
   CheckShop,
-  buyItem,
+  calcPlayerPosition,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
@@ -79,16 +79,34 @@ function App() {
   useEffect(() => {
     const update = setInterval(() => {
       if (moveup) {
-        dispatch(calcPlayerMovement({ exis: 'vertical', direction: +1 }))
+        dispatch(
+          setPlayerForces({ exis: 'vertical', direction: +1, type: 'move' }),
+        )
       }
       if (movedown) {
-        dispatch(calcPlayerMovement({ exis: 'vertical', direction: -1 }))
+        dispatch(
+          setPlayerForces({ exis: 'vertical', direction: -1, type: 'move' }),
+        )
       }
       if (moveleft) {
-        dispatch(calcPlayerMovement({ exis: 'horizontal', direction: -1 }))
+        dispatch(
+          setPlayerForces({ exis: 'horizontal', direction: -1, type: 'move' }),
+        )
       }
       if (moveright) {
-        dispatch(calcPlayerMovement({ exis: 'horizontal', direction: +1 }))
+        dispatch(
+          setPlayerForces({ exis: 'horizontal', direction: +1, type: 'move' }),
+        )
+      }
+      if (!moveup && !movedown) {
+        dispatch(
+          setPlayerForces({ exis: 'vertical', direction: 0, type: 'move' }),
+        )
+      }
+      if (!moveleft && !moveright) {
+        dispatch(
+          setPlayerForces({ exis: 'horizontal', direction: 0, type: 'move' }),
+        )
       }
       if (playerFire) {
         dispatch(summonProjectile())
@@ -120,6 +138,7 @@ function App() {
       dispatch(calcMissileMovement())
       dispatch(CheckMissileOutOfScreen())
       dispatch(CheckShop())
+      dispatch(calcPlayerPosition())
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps

@@ -9,7 +9,7 @@ export const Ship = styled.div.attrs((props) => ({
   height: 60px;
   width: 40px;
   position: absolute;
-  z-index: 98;
+  z-index: 97;
   border-radius: 50%;
 `
 const ShipImg = styled.img`
@@ -20,13 +20,14 @@ const ShipImg = styled.img`
 `
 const ThrusterImg = styled.img`
   position: absolute;
-  height: 40px;
+  height: 30px;
   width: 21px;
-  top: 60px;
-  left: 10px;
-  animation: thrusterAnim 150ms infinite ease-in-out;
+  top: 65px;
+  left: 10.5px;
+  animation: thrusterAnim1 170ms infinite ease-in-out;
   filter: contrast(0.5) brightness(1.5) saturate(1.5)
-    drop-shadow(0 0 10px rgba(216, 125, 20, 1));
+    drop-shadow(0 0 10px #2da4b6);
+  z-index: 95;
 `
 const MissileLancher = styled.img`
   position: absolute;

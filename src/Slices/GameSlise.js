@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const projectileSpeed = 8
-
-const enemySpawnRate = 1000
+const enemySpawnRate = 1000 //ms
+const enemysGoToRate = 3000 //ms
+const enemyBaseFireRate = 2000 //ms
 let lastSpawn = 0
 let timer = 1000
 let lastTimer1 = 0
@@ -37,21 +38,7 @@ let oreTypes = [
 
 const initialState = {
   gameSean: 'home',
-  player: {
-    ShipSpeed: 3,
-    fireRate: 500,
-    x: 475,
-    y: 175,
-    score: 0,
-    money: 0,
-    health: 100,
-    waveShipsDestroyed: 0,
-    totalShipsDestroyed: 0,
-    lastProjectile: 0,
-    lastMissile: 0,
-    burstFire: 3,
-    shieldActive: 0,
-  },
+
   waveCleared: {
     cleared: false,
     enemyElemenated: 0,
@@ -199,6 +186,29 @@ const initialState = {
   deltaTime: 0,
   lastTimeNow: 0,
   maxEnemysOnScreen: 5,
+  player: {
+    ShipSpeed: 3,
+    fireRate: 500,
+    x: 475,
+    y: 175,
+    score: 0,
+    money: 0,
+    health: 100,
+    waveShipsDestroyed: 0,
+    totalShipsDestroyed: 0,
+    lastProjectile: 0,
+    lastMissile: 0,
+    burstFire: 3,
+    shieldActive: 0,
+    maxSpeed: 10, // maximum speed the player can reach
+    acceleration: 0.1, // rate at which the player accelerates
+    drag: 0.97, // rate at which the player slows down when not accelerating
+    vx: 0, // current horizontal velocity
+    vy: 0, // current vertical velocity
+    ax: 0, // current horizontal acceleration
+    ay: 0, // current vertical acceleration
+    deceleration: 1.5, // rate at which the player slows down when not accelerating
+  },
 }
 const gameSlice = createSlice({
   name: 'game',
@@ -210,21 +220,77 @@ const gameSlice = createSlice({
       //deltatime
       state.deltaTime = state.timeNow - state.lastTimeNow
     },
-    calcPlayerMovement: (state, { payload }) => {
+    setPlayerForces: (state, { payload }) => {
       if (state.gameSean !== 'game') return
+      const player = state.player
+      const exis = payload.exis
+      const direction = payload.direction
+      const maxSpeed = player.maxSpeed
+      const acceleration =
+        payload.type === 'move' ? player.acceleration : player.deceleration
+      const drag = player.drag
 
-      if (payload.exis == 'horizontal') {
-        state.player.x += state.player.ShipSpeed * payload.direction
-        if (state.player.x < 0) state.player.x = 0
-        if (state.player.x > 950) state.player.x = 950
-        state.player.lastX = state.player.x
+      if (exis === 'horizontal') {
+        player.ax = acceleration * direction
+        player.ax = Math.min(maxSpeed, Math.max(-maxSpeed, player.ax))
+        player.ax *= drag
+
+        if (player.x < 0) {
+          player.ax = Math.max(0, player.ax)
+        } else if (player.x > 950) {
+          player.ax = Math.min(0, player.ax)
+        }
       } else {
-        state.player.y += state.player.ShipSpeed * payload.direction
-        if (state.player.y < 0) state.player.y = 0
-        if (state.player.y > 350) state.player.y = 350
-        state.player.lastY = state.player.y
+        player.ay = acceleration * direction
+        player.ay = Math.min(maxSpeed, Math.max(-maxSpeed, player.ay))
+        player.ay *= drag
+
+        if (player.y < 0) {
+          player.ay = Math.max(0, player.ay)
+        } else if (player.y > 350) {
+          player.ay = Math.min(0, player.ay)
+        }
       }
     },
+    calcPlayerPosition: (state) => {
+      if (state.gameSean !== 'game') return
+      const player = state.player
+
+      player.vx += player.ax
+      player.vy += player.ay
+
+      player.vx = Math.min(
+        player.maxSpeed,
+        Math.max(-player.maxSpeed, player.vx),
+      )
+      player.vy = Math.min(
+        player.maxSpeed,
+        Math.max(-player.maxSpeed, player.vy),
+      )
+
+      player.vx *= player.drag
+      player.vy *= player.drag
+
+      player.x += player.vx
+      player.y += player.vy
+
+      if (player.x < 0) {
+        player.x = 0
+        player.vx = 0
+      } else if (player.x > 950) {
+        player.x = 950
+        player.vx = 0
+      }
+
+      if (player.y < 0) {
+        player.y = 0
+        player.vy = 0
+      } else if (player.y > 350) {
+        player.y = 350
+        player.vy = 0
+      }
+    },
+
     oneSecondTimer: (state) => {
       if (state.gameSean !== 'game') return
       const timeNow = state.timeNow
@@ -516,14 +582,14 @@ const gameSlice = createSlice({
           },
           lastGoToX: 0,
           lastGoToY: 0,
-          goToRate: 3000,
+          goToRate: enemysGoToRate,
           id: window.crypto.randomUUID(),
           lastFire: 0,
           enemVelocityX: 0.2,
           enemVelocityY: 0.2,
           health,
           projectile,
-          fireRate: 2500 * Math.pow(0.9, spawnType - 1),
+          fireRate: enemyBaseFireRate * Math.pow(0.9, spawnType - 1),
           speed: spawnType * 0.2,
           oreDrop: spawnType,
           multipleOreChance: calcSpawnRate(7),
@@ -899,7 +965,7 @@ const gameSlice = createSlice({
 })
 export const {
   calcOreMovement,
-  calcPlayerMovement,
+  setPlayerForces,
   summonProjectile,
   deleteProjectile,
   calcProjectileMovement,
@@ -924,6 +990,7 @@ export const {
   CheckShop,
   buyItem,
   changePage,
+  calcPlayerPosition,
 } = gameSlice.actions
 export const gameReducer = gameSlice.reducer
 

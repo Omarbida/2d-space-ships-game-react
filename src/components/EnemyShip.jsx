@@ -38,7 +38,7 @@ const EnemyShipThruster = styled.img`
   top: -10px;
   left: 0;
   z-index: 97;
-  animation: thrusterAnim 150ms infinite linear;
+  animation: thrusterAnim1 180ms infinite linear;
   filter: contrast(0.5) brightness(1.5) saturate(1.5)
     drop-shadow(0 0 10px rgba(216, 125, 20, 1));
 `

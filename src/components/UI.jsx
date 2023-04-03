@@ -12,7 +12,7 @@ export const Healthbar = styled.div`
   transform: skewX(-10deg);
   border-radius: 0 10px 10px 0;
   overflow: hidden;
-  z-index: 98;
+  z-index: 99;
 `
 
 export const HealthBarFill = styled.div.attrs((props) => ({
@@ -62,8 +62,8 @@ export const UIparagraph = styled.div.attrs((props) => ({
   z-index: 99;
 `
 export const UInumSpan = styled.span`
-  color: rgb(111, 45, 158);
-  text-shadow: 0 0 5px rgba(111, 45, 158, 0.884);
+  color: rgb(145, 61, 205);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 1);
   font-family: 'Hammersmith One', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;

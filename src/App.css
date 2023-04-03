@@ -167,6 +167,7 @@ img.game-bg {
     scale: 140%;
     opacity: 0.5;
     transform: scaleY(0.5);
+    filter: hue-rotate(0deg);
   }
   10% {
     scale: 150%;
@@ -192,6 +193,7 @@ img.game-bg {
     scale: 150%;
     opacity: 1;
     transform: scaleY(1);
+    filter: hue-rotate(-100deg);
   }
   60% {
     scale: 160%;
@@ -218,6 +220,7 @@ img.game-bg {
     scale: 160%;
     opacity: 0.5;
     transform: scaleY(0.5);
+    filter: hue-rotate(0deg);
   }
 }
 
@@ -275,5 +278,66 @@ img.game-bg {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+@keyframes thrusterAnim1 {
+  0% {
+    scale: 140%;
+    opacity: 0.5;
+    transform: scaleY(01.5) scaleX(1.2);
+    filter: hue-rotate(-50deg);
+  }
+  10% {
+    scale: 150%;
+    opacity: 1;
+    transform: scaleY(01) scaleX(1);
+  }
+  20% {
+    scale: 160%;
+    opacity: 0.5;
+    transform: scaleY(01.5) scaleX(1.2);
+  }
+  30% {
+    scale: 150%;
+    opacity: 1;
+    transform: scaleY(01) scaleX(1);
+  }
+  40% {
+    scale: 140%;
+    opacity: 0.5;
+    transform: scaleY(01.5) scaleX(1.2);
+  }
+  50% {
+    scale: 150%;
+    opacity: 1;
+    transform: scaleY(01) scaleX(1);
+    filter: hue-rotate(10deg);
+  }
+  60% {
+    scale: 160%;
+    opacity: 0.5;
+    transform: scaleY(01.5) scaleX(1.2);
+  }
+  70% {
+    scale: 150%;
+    opacity: 1;
+    transform: scaleY(01) scaleX(1);
+  }
+
+  80% {
+    scale: 140%;
+    opacity: 0.5;
+    transform: scaleY(01.5) scaleX(1.2);
+  }
+  90% {
+    scale: 150%;
+    opacity: 1;
+    transform: scaleY(01) scaleX(1);
+  }
+  100% {
+    scale: 160%;
+    opacity: 0.5;
+    transform: scaleY(01.5) scaleX(1.2);
+    filter: hue-rotate(-50deg);
   }
 }
