@@ -42,11 +42,13 @@ import {
   CheckShop,
   calcPlayerPosition,
   calcDeltaTime,
+  calcSquadMovement,
 } from './Slices/GameSlise'
 import ExplosionAnimation from './components/ExplosionAnimation'
 import WaveCleardInfo from './components/WaveClearedInfo'
 import GameOverDisplay from './components/GameOverDisplay'
 import Shield from './components/Shield'
+import SquadShip from './components/SquadShip'
 
 let moveup = false
 let movedown = false
@@ -70,6 +72,7 @@ function App() {
     ores,
     playerMissiles,
     shopItems,
+    squad,
   } = useSelector((state) => state.game)
   const [keys, setkeys] = useState({
     w: false,
@@ -143,6 +146,7 @@ function App() {
       dispatch(CheckMissileOutOfScreen())
       dispatch(CheckShop())
       dispatch(calcPlayerPosition())
+      dispatch(calcSquadMovement())
     }, 10)
     return () => clearInterval(update)
   }, []) //game update loop 10ms interval 100fps
@@ -357,6 +361,18 @@ function App() {
               x={missile.x}
               y={missile.y}
               rotation={missile.rotation}
+            />
+          )
+        })}
+        {squad.map((squad) => {
+          return (
+            <SquadShip
+              key={squad.id}
+              index={squad.id}
+              x={squad.x}
+              y={squad.y}
+              ship={squad.ship}
+              health={squad.health.percentage}
             />
           )
         })}

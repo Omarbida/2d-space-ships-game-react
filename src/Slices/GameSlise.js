@@ -57,9 +57,10 @@ const initialState = {
   explosions: [],
   enemyProjectiles: [],
   playerMissiles: [],
+  squad: [],
   shopItems: {
     page: 1,
-    maxPages: 2,
+    maxPages: 3,
     missiles: {
       name: 'missiles',
       level: 0,
@@ -179,6 +180,150 @@ const initialState = {
         }
       },
     },
+    reInforcementsShip1: {
+      name: 'Nova Unit',
+      x: 0,
+      y: 0,
+      cost: 1000,
+      lable: 'squad/ship1.png',
+      ship: 'squad/ship1.png',
+      health: {
+        max: 70,
+        current: 70,
+        percentage: 100,
+      },
+      damage: 1,
+      speed: 3,
+      fireRate: 1500,
+      lastBurstFire: 0,
+      lastFire: 0,
+      canBuy: false,
+
+      buy: function (state) {
+        if (
+          state.player.money >= this.cost &&
+          state.shopItems.reInforcementsShipActive.current <
+            state.shopItems.reInforcementsShipActive.max
+        ) {
+          state.player.money -= this.cost
+          state.shopItems.reInforcementsShipActive.current++
+          state.squad.push({
+            ...this,
+            x: 1100,
+            y: 100 + Math.random() * 200,
+            id: window.crypto.randomUUID(),
+          })
+        }
+      },
+      checkCanBuy: function (state) {
+        if (
+          state.player.money >= this.cost &&
+          state.shopItems.reInforcementsShipActive.current <
+            state.shopItems.reInforcementsShipActive.max
+        ) {
+          this.canBuy = true
+        } else {
+          this.canBuy = false
+        }
+      },
+    },
+    reInforcementsShip2: {
+      name: 'Phoenix Squad',
+      x: 0,
+      y: 0,
+      cost: 1300,
+      lable: 'squad/ship2.png',
+      ship: 'squad/ship2.png',
+      health: {
+        max: 70,
+        current: 70,
+        percentage: 100,
+      },
+      damage: 1,
+      speed: 3,
+      fireRate: 1000,
+      lastBurstFire: 0,
+      lastFire: 0,
+      canBuy: false,
+      buy: function (state) {
+        if (
+          state.player.money >= this.cost &&
+          state.shopItems.reInforcementsShipActive.current <
+            state.shopItems.reInforcementsShipActive.max
+        ) {
+          state.player.money -= this.cost
+          state.shopItems.reInforcementsShipActive.current++
+          state.squad.push({
+            ...this,
+            x: 1100,
+
+            y: 100 + Math.random() * 200,
+            id: window.crypto.randomUUID(),
+          })
+        }
+      },
+      checkCanBuy: function (state) {
+        if (
+          state.player.money >= this.cost &&
+          state.shopItems.reInforcementsShipActive.current <
+            state.shopItems.reInforcementsShipActive.max
+        ) {
+          this.canBuy = true
+        } else {
+          this.canBuy = false
+        }
+      },
+    },
+    reInforcementsShip3: {
+      name: 'Shadow Legion',
+      x: 0,
+      y: 0,
+      cost: 1800,
+      lable: 'squad/ship3.png',
+      ship: 'squad/ship3.png',
+      health: {
+        max: 100,
+        current: 100,
+        percentage: 100,
+      },
+      damage: 2,
+      speed: 3,
+      fireRate: 500,
+      lastBurstFire: 0,
+      lastFire: 0,
+      canBuy: false,
+      buy: function (state) {
+        if (
+          state.player.money >= this.cost &&
+          state.shopItems.reInforcementsShipActive.current <
+            state.shopItems.reInforcementsShipActive.max
+        ) {
+          state.player.money -= this.cost
+          state.shopItems.reInforcementsShipActive.current++
+          state.squad.push({
+            ...this,
+            x: 1100,
+            y: 100 + Math.random() * 200,
+            id: window.crypto.randomUUID(),
+          })
+        }
+      },
+      checkCanBuy: function (state) {
+        if (
+          state.player.money >= this.cost &&
+          state.shopItems.reInforcementsShipActive.current <
+            state.shopItems.reInforcementsShipActive.max
+        ) {
+          this.canBuy = true
+        } else {
+          this.canBuy = false
+        }
+      },
+    },
+    reInforcementsShipActive: {
+      max: 4,
+      current: 0,
+    },
   },
   damaged: false,
   enemySummoned: 0,
@@ -194,7 +339,7 @@ const initialState = {
     x: 475,
     y: 175,
     score: 0,
-    money: 0,
+    money: 10000,
     health: 100,
     waveShipsDestroyed: 0,
     totalShipsDestroyed: 0,
@@ -670,6 +815,60 @@ const gameSlice = createSlice({
         })
       }
     },
+    calcSquadMovement: (state) => {
+      if (state.gameSean !== 'game') return
+
+      if (state.squad.length > 0) {
+        state.squad.forEach((squad, i) => {
+          if (state.enemys[i]) {
+            const targetX = state.enemys[i].x
+            const distance = targetX - squad.x
+
+            if (Math.abs(distance) > squad.speed) {
+              const direction = distance / Math.abs(distance)
+              squad.x += squad.speed * direction
+            } else {
+              squad.x = targetX
+            }
+
+            //fire
+            if (state.timeNow - squad.lastFire > squad.fireRate) {
+              state.projectiles.push({
+                x: squad.x + 15,
+                y: squad.y - 5,
+                with: 8,
+                height: 20,
+                id: window.crypto.randomUUID(),
+              })
+              squad.lastFire = state.timeNow
+            }
+          } else if (i > 0 && state.enemys[i - 1]) {
+            const targetX = state.enemys[i - 1].x
+            const distance = targetX - squad.x
+
+            if (Math.abs(distance) > squad.speed) {
+              const direction = distance / Math.abs(distance)
+              squad.x += squad.speed * direction
+            } else {
+              squad.x = targetX
+            }
+
+            //fire
+            if (state.timeNow - squad.lastFire > squad.fireRate) {
+              state.projectiles.push({
+                x: squad.x + 15,
+                y: squad.y - 5,
+                with: 8,
+                height: 20,
+                id: window.crypto.randomUUID(),
+              })
+              squad.lastFire = state.timeNow
+            }
+          }
+        })
+      }
+    },
+
     checkGameOver: (state) => {
       if (state.gameSean !== 'game') return
       if (state.player.health <= 0) {
@@ -726,8 +925,9 @@ const gameSlice = createSlice({
                     (enem.health.current / enem.health.max) * 100
                 }
                 // enemy death
-                if (enem.health.current <= 0) {
+                if (enem.health.current <= 0 && !enem.dead) {
                   state.score += enem.score
+                  enem.dead = true
                   state.enemys = state.enemys.filter((enemy) => {
                     if (enemy.id != enem.id) return enemy
                   })
@@ -777,8 +977,9 @@ const gameSlice = createSlice({
                     (enem.health.current / enem.health.max) * 100
                 }
                 // enemy death
-                if (enem.health.current <= 0) {
+                if (enem.health.current <= 0 && !enem.dead) {
                   state.score += enem.score
+                  enem.dead = true
                   state.enemys = state.enemys.filter((enemy) => {
                     if (enemy.id != enem.id) return enemy
                   })
@@ -805,6 +1006,7 @@ const gameSlice = createSlice({
               }
             })
           }
+
           // enemy X player
           if (state.player.shieldActive === 0) {
             if (
@@ -870,10 +1072,43 @@ const gameSlice = createSlice({
               },
             )
           }
+          state.squad.forEach((squad) => {
+            if (
+              ((proj.x >= squad.x + 5 && proj.x <= squad.x + 45) ||
+                (proj.x + 10 >= squad.x + 5 && proj.x + 10 <= squad.x + 45)) &&
+              ((proj.y >= squad.y + 5 && proj.y <= squad.y + 45) ||
+                (proj.y + 10 >= squad.y + 5 && proj.y + 10 <= squad.y + 45))
+            ) {
+              state.enemyProjectiles = state.enemyProjectiles.filter(
+                (projectile) => {
+                  if (proj.id != projectile.id) return projectile
+                },
+              )
+              squad.health.current -= proj.damage
+              squad.health.percentage = Math.floor(
+                (squad.health.current / squad.health.max) * 100,
+              )
+              if (squad.health.current <= 0) {
+                state.explosions.push({
+                  x: squad.x - 20,
+                  y: squad.y + 20,
+                  id: window.crypto.randomUUID(),
+                  img: 1,
+                })
+                state.shopItems.reInforcementsShipActive.current--
+                console.log(
+                  state.shopItems.reInforcementsShipActive.current,
+                  'squad destroyed',
+                )
+                state.squad = state.squad.filter((squad1) => {
+                  if (squad.id != squad1.id) return squad1
+                })
+              }
+            }
+          })
         })
       }
     },
-
     checkColisionWithOre: (state) => {
       if (state.gameSean !== 'game') return
       if (state.ores.length > 0) {
@@ -965,6 +1200,9 @@ const gameSlice = createSlice({
       state.shopItems.ShipRepair.checkCanBuy(state)
       state.shopItems.ShipRepair.calcCost(state)
       state.shopItems.shield.checkCanBuy(state)
+      state.shopItems.reInforcementsShip1.checkCanBuy(state)
+      state.shopItems.reInforcementsShip2.checkCanBuy(state)
+      state.shopItems.reInforcementsShip3.checkCanBuy(state)
     },
     buyItem: (state, { payload }) => {
       if (state.gameSean !== 'shop') return
@@ -1005,6 +1243,7 @@ export const {
   changePage,
   calcPlayerPosition,
   calcDeltaTime,
+  calcSquadMovement,
 } = gameSlice.actions
 export const gameReducer = gameSlice.reducer
 

@@ -151,6 +151,18 @@ const TempWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `
+const AdditionalInfo = styled.p`
+  font-size: 25px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+  padding: 5px;
+  width: 100%;
+  text-align: center;
+  font-family: 'Hammersmith One', sans-serif;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.356);
+`
+
 function ShopDisplay(props) {
   const { shopItems } = useSelector((state) => state.game)
   const dispatch = useDispatch()
@@ -352,7 +364,167 @@ function ShopDisplay(props) {
               )}
             </>
           )}
+          {shopItems.page === 3 && (
+            <>
+              {shopItems.reInforcementsShip1 && (
+                <ItemWrapper
+                  disabled={shopItems.reInforcementsShip1.canBuy}
+                  order={1}
+                  key={shopItems.reInforcementsShip1.name}
+                >
+                  <InfoPara center={'center'}>
+                    {shopItems.reInforcementsShip1.name}
+                  </InfoPara>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.reInforcementsShip1.canBuy) {
+                        dispatch(buyItem('reInforcementsShip1'))
+                      }
+                    }}
+                    disabled={shopItems.reInforcementsShip1.canBuy}
+                  >
+                    <Icon>
+                      <ItemImg
+                        src={shopItems.reInforcementsShip1.lable}
+                        alt=""
+                      />
+                    </Icon>
+                  </Item>
+                  <ItemInfo>
+                    <InfoPara>
+                      Health :{' '}
+                      <span>{shopItems.reInforcementsShip1.health.max}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Damage :{' '}
+                      <span>{shopItems.reInforcementsShip1.damage}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Rate :{' '}
+                      <span>
+                        {(
+                          1 /
+                          (shopItems.reInforcementsShip1.fireRate / 1000)
+                        ).toFixed(2)}{' '}
+                        P/s
+                      </span>
+                    </InfoPara>
+                    <InfoPara center={'center'}>
+                      <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                      {shopItems.reInforcementsShip1.cost}
+                    </InfoPara>
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+              {shopItems.reInforcementsShip2 && (
+                <ItemWrapper
+                  disabled={shopItems.reInforcementsShip2.canBuy}
+                  order={2}
+                  key={shopItems.reInforcementsShip2.name}
+                >
+                  <InfoPara center={'center'}>
+                    {shopItems.reInforcementsShip2.name}
+                  </InfoPara>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.reInforcementsShip2.canBuy) {
+                        dispatch(buyItem('reInforcementsShip2'))
+                      }
+                    }}
+                    disabled={shopItems.reInforcementsShip2.canBuy}
+                  >
+                    <Icon>
+                      <ItemImg
+                        src={shopItems.reInforcementsShip2.lable}
+                        alt=""
+                      />
+                    </Icon>
+                  </Item>
+                  <ItemInfo>
+                    <InfoPara>
+                      Health :{' '}
+                      <span>{shopItems.reInforcementsShip2.health.max}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Damage :{' '}
+                      <span>{shopItems.reInforcementsShip2.damage}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Rate :{' '}
+                      <span>
+                        {(
+                          1 /
+                          (shopItems.reInforcementsShip2.fireRate / 1000)
+                        ).toFixed(2)}{' '}
+                        P/s
+                      </span>
+                    </InfoPara>
+                    <InfoPara center={'center'}>
+                      <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                      {shopItems.reInforcementsShip2.cost}
+                    </InfoPara>
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+              {shopItems.reInforcementsShip3 && (
+                <ItemWrapper
+                  disabled={shopItems.reInforcementsShip3.canBuy}
+                  order={3}
+                  key={shopItems.reInforcementsShip3.name}
+                >
+                  <InfoPara center={'center'}>
+                    {shopItems.reInforcementsShip3.name}
+                  </InfoPara>
+                  <Item
+                    onClick={() => {
+                      if (shopItems.reInforcementsShip3.canBuy) {
+                        dispatch(buyItem('reInforcementsShip3'))
+                      }
+                    }}
+                    disabled={shopItems.reInforcementsShip3.canBuy}
+                  >
+                    <Icon>
+                      <ItemImg
+                        src={shopItems.reInforcementsShip3.lable}
+                        alt=""
+                      />
+                    </Icon>
+                  </Item>
+                  <ItemInfo>
+                    <InfoPara>
+                      Health :{' '}
+                      <span>{shopItems.reInforcementsShip3.health.max}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Damage :{' '}
+                      <span>{shopItems.reInforcementsShip3.damage}</span>
+                    </InfoPara>
+                    <InfoPara>
+                      Rate :{' '}
+                      <span>
+                        {(
+                          1 /
+                          (shopItems.reInforcementsShip3.fireRate / 1000)
+                        ).toFixed(2)}{' '}
+                        P/s
+                      </span>
+                    </InfoPara>
+                    <InfoPara center={'center'}>
+                      <MoneyIconImg src="ores/ore5.png" alt="" />{' '}
+                      {shopItems.reInforcementsShip3.cost}
+                    </InfoPara>
+                  </ItemInfo>
+                </ItemWrapper>
+              )}
+            </>
+          )}
         </ItemsContainer>
+        {shopItems.page === 3 && (
+          <AdditionalInfo>
+            {shopItems.reInforcementsShipActive.current} /{' '}
+            {shopItems.reInforcementsShipActive.max}
+          </AdditionalInfo>
+        )}
       </ShopContainer>
     </div>
   )
